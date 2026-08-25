@@ -1,0 +1,416 @@
+---
+title: "Data Visualisation 1: Practice Exercises"
+subtitle: "ggplot2 basics and chart types"
+format: live-html
+webr:
+  packages: ['dplyr', 'readr', 'ggplot2']
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+{{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
+
+These exercises practise building charts with `ggplot2`, from the *Data Visualisation 1* part of the course book. They use the `titanic_df` and `gapminder_df` datasets from the course.
+
+Write your code in the box, then click **Run Code** to see the plot and get feedback. Unlike the earlier exercises, these are checked by comparing your **code** to the model solution (rather than the result), so it's fine if the plot looks right but the feedback still points out something specific to fix - it's checking things like which variable you mapped to which aesthetic.
+
+The last two exercises are a bit more of a stretch - come back to them once you're comfortable with the rest.
+
+## Exercise 1: a basic bar chart
+
+Using the pre-summarised `df` (a count of passengers by `sex`), build a bar chart with `sex` on the x axis and `n` on the y axis.
+
+```{webr}
+#| exercise: ex_1
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+df <- titanic_df |> group_by(sex) |> summarise(n = n())
+```
+
+```{webr}
+#| exercise: ex_1
+ggplot(data = df, aes(x = ______, y = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_1" }
+The geom for a bar chart made from already-summarised data is `geom_col()`.
+:::
+
+::: { .solution exercise="ex_1" }
+#### Solution
+
+```{webr}
+#| exercise: ex_1
+#| solution: true
+ggplot(data = df, aes(x = sex, y = n)) +
+  geom_col()
+```
+:::
+
+```{webr}
+#| exercise: ex_1
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 2: a scatterplot
+
+Using `gapminder_df` (already filtered to the year 2007), make a scatterplot with `lifeExp` on the x axis and `gdpPercap` on the y axis.
+
+```{webr}
+#| exercise: ex_2
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+gapminder_2007 <- gapminder_df |> filter(year == 2007)
+```
+
+```{webr}
+#| exercise: ex_2
+ggplot(data = gapminder_2007, aes(x = ______, y = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_2" }
+Scatterplots use `geom_point()`.
+:::
+
+::: { .solution exercise="ex_2" }
+#### Solution
+
+```{webr}
+#| exercise: ex_2
+#| solution: true
+ggplot(data = gapminder_2007, aes(x = lifeExp, y = gdpPercap)) +
+  geom_point()
+```
+:::
+
+```{webr}
+#| exercise: ex_2
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 3: mapping size
+
+Copy the scatterplot from exercise 2, and additionally map the `pop` column to the `size` aesthetic.
+
+```{webr}
+#| exercise: ex_3
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+gapminder_2007 <- gapminder_df |> filter(year == 2007)
+```
+
+```{webr}
+#| exercise: ex_3
+ggplot(data = gapminder_2007, aes(x = lifeExp, y = gdpPercap, size = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_3" }
+Add `size = pop` inside the `aes()`.
+:::
+
+::: { .solution exercise="ex_3" }
+#### Solution
+
+```{webr}
+#| exercise: ex_3
+#| solution: true
+ggplot(data = gapminder_2007, aes(x = lifeExp, y = gdpPercap, size = pop)) +
+  geom_point()
+```
+:::
+
+```{webr}
+#| exercise: ex_3
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 4: mapping colour
+
+Copy the scatterplot from exercise 2 again, this time mapping the `continent` column to `colour`.
+
+```{webr}
+#| exercise: ex_4
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+gapminder_2007 <- gapminder_df |> filter(year == 2007)
+```
+
+```{webr}
+#| exercise: ex_4
+ggplot(data = gapminder_2007, aes(x = lifeExp, y = gdpPercap, color = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_4" }
+Add `color = continent` inside the `aes()`. (Either `color` or `colour` works in ggplot2.)
+:::
+
+::: { .solution exercise="ex_4" }
+#### Solution
+
+```{webr}
+#| exercise: ex_4
+#| solution: true
+ggplot(data = gapminder_2007, aes(x = lifeExp, y = gdpPercap, color = continent)) +
+  geom_point()
+```
+:::
+
+```{webr}
+#| exercise: ex_4
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 5: a line chart
+
+Using `netherlands_df` (already filtered to just the Netherlands), make a line chart with `year` on the x axis and `gdpPercap` on the y axis.
+
+```{webr}
+#| exercise: ex_5
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+netherlands_df <- gapminder_df |> filter(country == 'Netherlands')
+```
+
+```{webr}
+#| exercise: ex_5
+ggplot(data = netherlands_df, aes(x = ______, y = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_5" }
+Line charts use `geom_line()`.
+:::
+
+::: { .solution exercise="ex_5" }
+#### Solution
+
+```{webr}
+#| exercise: ex_5
+#| solution: true
+ggplot(data = netherlands_df, aes(x = year, y = gdpPercap)) +
+  geom_line()
+```
+:::
+
+```{webr}
+#| exercise: ex_5
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 6: a histogram
+
+Using `gapminder_2007`, plot the distribution of `gdpPercap`.
+
+```{webr}
+#| exercise: ex_6
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+gapminder_2007 <- gapminder_df |> filter(year == 2007)
+```
+
+```{webr}
+#| exercise: ex_6
+ggplot(data = gapminder_2007, aes(x = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_6" }
+Histograms only need one variable mapped (`x`), and use `geom_histogram()`.
+:::
+
+::: { .solution exercise="ex_6" }
+#### Solution
+
+```{webr}
+#| exercise: ex_6
+#| solution: true
+ggplot(data = gapminder_2007, aes(x = gdpPercap)) +
+  geom_histogram()
+```
+:::
+
+```{webr}
+#| exercise: ex_6
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 7: a boxplot
+
+Using `gapminder_2007`, make a boxplot of `lifeExp` for each `continent`. You'll need to map `continent` to both `x` and `group`, and `lifeExp` to `y`.
+
+```{webr}
+#| exercise: ex_7
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+gapminder_2007 <- gapminder_df |> filter(year == 2007)
+```
+
+```{webr}
+#| exercise: ex_7
+ggplot(data = gapminder_2007, aes(x = ______, y = ______, group = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_7" }
+Boxplots use `geom_boxplot()`.
+:::
+
+::: { .solution exercise="ex_7" }
+#### Solution
+
+```{webr}
+#| exercise: ex_7
+#| solution: true
+ggplot(data = gapminder_2007, aes(x = continent, y = lifeExp, group = continent)) +
+  geom_boxplot()
+```
+:::
+
+```{webr}
+#| exercise: ex_7
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 8: fill mapped to a category
+
+`df2` counts passengers by `sex` and `embarked`. Build a bar chart with `sex` on the x axis, `n` on the y axis, and `embarked` mapped to `fill`.
+
+```{webr}
+#| exercise: ex_8
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+df2 <- titanic_df |> group_by(sex, embarked) |> summarise(n = n())
+```
+
+```{webr}
+#| exercise: ex_8
+ggplot(data = df2, aes(x = ______, y = ______, fill = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_8" }
+The geom is the same as exercise 1 - only the aesthetics change.
+:::
+
+::: { .solution exercise="ex_8" }
+#### Solution
+
+```{webr}
+#| exercise: ex_8
+#| solution: true
+ggplot(data = df2, aes(x = sex, y = n, fill = embarked)) +
+  geom_col()
+```
+:::
+
+```{webr}
+#| exercise: ex_8
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Stretch exercise 9: two aesthetics at once
+
+Using `gapminder_2007`, make a scatterplot of `lifeExp` (x) against `gdpPercap` (y), mapping **both** `size` to `pop` **and** `color` to `continent` in the same chart.
+
+```{webr}
+#| exercise: ex_9
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+gapminder_2007 <- gapminder_df |> filter(year == 2007)
+```
+
+```{webr}
+#| exercise: ex_9
+ggplot(data = gapminder_2007, aes(x = ______, y = ______, size = ______, color = ______)) +
+  ______
+```
+
+::: { .hint exercise="ex_9" }
+This combines exercises 3 and 4 - both `size = pop` and `color = continent` go inside the same `aes()`.
+:::
+
+::: { .solution exercise="ex_9" }
+#### Solution
+
+```{webr}
+#| exercise: ex_9
+#| solution: true
+ggplot(data = gapminder_2007, aes(x = lifeExp, y = gdpPercap, size = pop, color = continent)) +
+  geom_point()
+```
+:::
+
+```{webr}
+#| exercise: ex_9
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Stretch exercise 10: mapped fill, fixed outline
+
+Some point shapes (21 to 25) have a separate outline colour and fill colour. Using `gapminder_2007`, build a scatterplot of `lifeExp` (x) against `gdpPercap` (y), with `continent` mapped to `fill`. Then, in the `geom_point()` layer (not inside `aes()`), set `shape` to `21` and `color` to `"black"`, to give every point a fixed black outline.
+
+```{webr}
+#| exercise: ex_10
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+gapminder_2007 <- gapminder_df |> filter(year == 2007)
+```
+
+```{webr}
+#| exercise: ex_10
+ggplot(data = gapminder_2007, aes(x = ______, y = ______, fill = ______)) +
+  geom_point(shape = ______, color = ______)
+```
+
+::: { .hint exercise="ex_10" }
+`fill` is mapped to data, so it goes inside `aes()`. `shape` and `color` are both set to fixed values here, so they go outside `aes()`, as arguments to `geom_point()` directly.
+:::
+
+::: { .solution exercise="ex_10" }
+#### Solution
+
+```{webr}
+#| exercise: ex_10
+#| solution: true
+ggplot(data = gapminder_2007, aes(x = lifeExp, y = gdpPercap, fill = continent)) +
+  geom_point(shape = 21, color = "black")
+```
+:::
+
+```{webr}
+#| exercise: ex_10
+#| check: true
+gradethis::grade_this_code()
+```
