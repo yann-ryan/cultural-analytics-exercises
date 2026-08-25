@@ -1,0 +1,10 @@
+---
+title: "Cultural Analytics: Interactive Exercises"
+format: html
+---
+
+Interactive, checked practice exercises for the [Cultural Analytics course book](https://yann-ryan.github.io/cultural_analytics_book/). These run entirely in your browser (via [webR](https://docs.r-wasm.org/webr/latest/)) and give instant feedback on your code, using [gradethis](https://pkgs.rstudio.com/gradethis/).
+
+They're designed to be embedded directly into the course book via `<iframe>`, but each page also works fine on its own:
+
+- [Data Analysis 1: select, slice, arrange, and pipes](data-analysis-1.html)

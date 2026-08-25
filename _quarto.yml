@@ -1,0 +1,13 @@
+project:
+  type: default
+  output-dir: docs
+
+format:
+  live-html:
+    theme: cosmo
+    toc: false
+
+engine: knitr
+
+webr:
+  packages: ['dplyr', 'readr']

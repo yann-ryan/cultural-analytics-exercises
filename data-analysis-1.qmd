@@ -1,0 +1,178 @@
+---
+title: "Data Analysis 1: Practice Exercises"
+subtitle: "select, slice, arrange, and pipes"
+format: live-html
+webr:
+  packages: ['dplyr', 'readr']
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+{{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
+
+These exercises let you practise the verbs from the *Data Analysis 1* part of the course book: `select()`, `slice()`, `arrange()`, and the pipe `|>`. They all use the same `titanic_df` dataset from the course.
+
+Write your code in the box, then click **Run Code** to see the result, and **Check Exercise** for feedback.
+
+## Exercise 1: `select()`
+
+Select the `name`, `age`, and `sex` columns from `titanic_df`.
+
+```{webr}
+#| exercise: ex_select
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_select
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_select" }
+Use `select()`, and list the three column names separated by commas.
+:::
+
+::: { .solution exercise="ex_select" }
+#### Solution
+
+```{webr}
+#| exercise: ex_select
+#| solution: true
+titanic_df |> select(name, age, sex)
+```
+:::
+
+```{webr}
+#| exercise: ex_select
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Nicely done - that's the right three columns.")
+  fail("Check that you've selected exactly the `name`, `age`, and `sex` columns (in any order).")
+})
+```
+
+## Exercise 2: `slice()`
+
+Find the **5 oldest** passengers in the dataset. (Hint: think about which `slice_` variant picks rows based on the maximum value of a column.)
+
+```{webr}
+#| exercise: ex_slice
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_slice
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_slice" }
+You'll need `slice_max()`, with `order_by = age` and `n = 5`.
+:::
+
+::: { .solution exercise="ex_slice" }
+#### Solution
+
+```{webr}
+#| exercise: ex_slice
+#| solution: true
+titanic_df |> slice_max(order_by = age, n = 5)
+```
+:::
+
+```{webr}
+#| exercise: ex_slice
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - those are the 5 oldest passengers.")
+  fail("That's not quite the 5 oldest passengers. Have another look at `slice_max()`.")
+})
+```
+
+## Exercise 3: `arrange()`
+
+Sort `titanic_df` by the `fare` column, from **highest to lowest**.
+
+```{webr}
+#| exercise: ex_arrange
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_arrange
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_arrange" }
+`arrange()` sorts ascending by default. To sort descending, put a minus sign in front of the column name.
+:::
+
+::: { .solution exercise="ex_arrange" }
+#### Solution
+
+```{webr}
+#| exercise: ex_arrange
+#| solution: true
+titanic_df |> arrange(-fare)
+```
+:::
+
+```{webr}
+#| exercise: ex_arrange
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - sorted from highest to lowest fare.")
+  fail("Not quite - remember arrange() sorts ascending unless you tell it otherwise.")
+})
+```
+
+## Exercise 4: putting it together with the pipe
+
+In **one** piped sequence, starting from `titanic_df`: keep only the `name`, `pclass`, and `fare` columns, and sort the result by `fare`, from highest to lowest.
+
+```{webr}
+#| exercise: ex_pipe
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_pipe
+titanic_df |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_pipe" }
+You'll need two verbs chained together with `|>`: one to keep the three columns, and one to sort them. The order you do them in doesn't matter here.
+:::
+
+::: { .solution exercise="ex_pipe" }
+#### Solution
+
+```{webr}
+#| exercise: ex_pipe
+#| solution: true
+titanic_df |>
+  select(name, pclass, fare) |>
+  arrange(-fare)
+```
+:::
+
+```{webr}
+#| exercise: ex_pipe
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Great work - you've combined select() and arrange() in a single pipe.")
+  fail("Not quite. You need both the three right columns *and* the right sort order.")
+})
+```
