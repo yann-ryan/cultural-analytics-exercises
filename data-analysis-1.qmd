@@ -11,14 +11,16 @@ webr:
 
 These exercises let you practise the verbs from the *Data Analysis 1* part of the course book: `select()`, `slice()`, `arrange()`, and the pipe `|>`. They all use the same `titanic_df` dataset from the course.
 
-Write your code in the box, then click **Run Code** to see the result, and **Check Exercise** for feedback.
+Write your code in the box, then click **Run Code** to see the result and get feedback.
+
+The last two exercises are a bit more of a stretch - come back to them once you're comfortable with the rest.
 
 ## Exercise 1: `select()`
 
 Select the `name`, `age`, and `sex` columns from `titanic_df`.
 
 ```{webr}
-#| exercise: ex_select
+#| exercise: ex_1
 #| setup: true
 url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
 download.file(url, "titanic_df.csv")
@@ -26,26 +28,26 @@ titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
 ```
 
 ```{webr}
-#| exercise: ex_select
+#| exercise: ex_1
 titanic_df |> ______
 ```
 
-::: { .hint exercise="ex_select" }
+::: { .hint exercise="ex_1" }
 Use `select()`, and list the three column names separated by commas.
 :::
 
-::: { .solution exercise="ex_select" }
+::: { .solution exercise="ex_1" }
 #### Solution
 
 ```{webr}
-#| exercise: ex_select
+#| exercise: ex_1
 #| solution: true
 titanic_df |> select(name, age, sex)
 ```
 :::
 
 ```{webr}
-#| exercise: ex_select
+#| exercise: ex_1
 #| check: true
 gradethis::grade_this({
   pass_if_equal(explanation = "Nicely done - that's the right three columns.")
@@ -53,12 +55,12 @@ gradethis::grade_this({
 })
 ```
 
-## Exercise 2: `slice()`
+## Exercise 2: deselecting a column
 
-Find the **5 oldest** passengers in the dataset. (Hint: think about which `slice_` variant picks rows based on the maximum value of a column.)
+Select every column from `titanic_df` **except** `cabin`.
 
 ```{webr}
-#| exercise: ex_slice
+#| exercise: ex_2
 #| setup: true
 url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
 download.file(url, "titanic_df.csv")
@@ -66,26 +68,146 @@ titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
 ```
 
 ```{webr}
-#| exercise: ex_slice
+#| exercise: ex_2
 titanic_df |> ______
 ```
 
-::: { .hint exercise="ex_slice" }
-You'll need `slice_max()`, with `order_by = age` and `n = 5`.
+::: { .hint exercise="ex_2" }
+Put a minus sign directly in front of the column name inside `select()`.
 :::
 
-::: { .solution exercise="ex_slice" }
+::: { .solution exercise="ex_2" }
 #### Solution
 
 ```{webr}
-#| exercise: ex_slice
+#| exercise: ex_2
+#| solution: true
+titanic_df |> select(-cabin)
+```
+:::
+
+```{webr}
+#| exercise: ex_2
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - every column except cabin.")
+  fail("Not quite. Remember a minus sign in front of a column name removes it from the selection.")
+})
+```
+
+## Exercise 3: `starts_with()`
+
+Select all the columns whose names start with the letter `s`.
+
+```{webr}
+#| exercise: ex_3
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_3
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_3" }
+Use the tidyselect helper `starts_with()` inside `select()`.
+:::
+
+::: { .solution exercise="ex_3" }
+#### Solution
+
+```{webr}
+#| exercise: ex_3
+#| solution: true
+titanic_df |> select(starts_with("s"))
+```
+:::
+
+```{webr}
+#| exercise: ex_3
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - survived, sex, and sibsp.")
+  fail("Not quite. Check which column names actually start with 's'.")
+})
+```
+
+## Exercise 4: `slice()`
+
+Select the **first 10 rows** of `titanic_df`.
+
+```{webr}
+#| exercise: ex_4
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_4
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_4" }
+`slice()` takes a range like `1:10`.
+:::
+
+::: { .solution exercise="ex_4" }
+#### Solution
+
+```{webr}
+#| exercise: ex_4
+#| solution: true
+titanic_df |> slice(1:10)
+```
+:::
+
+```{webr}
+#| exercise: ex_4
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's the first 10 rows.")
+  fail("Not quite - check the range you're passing to slice().")
+})
+```
+
+## Exercise 5: `slice_max()`
+
+Find the **5 oldest** passengers in the dataset.
+
+```{webr}
+#| exercise: ex_5
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_5
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_5" }
+You'll need `slice_max()`, with `order_by = age` and `n = 5`.
+:::
+
+::: { .solution exercise="ex_5" }
+#### Solution
+
+```{webr}
+#| exercise: ex_5
 #| solution: true
 titanic_df |> slice_max(order_by = age, n = 5)
 ```
 :::
 
 ```{webr}
-#| exercise: ex_slice
+#| exercise: ex_5
 #| check: true
 gradethis::grade_this({
   pass_if_equal(explanation = "Correct - those are the 5 oldest passengers.")
@@ -93,12 +215,12 @@ gradethis::grade_this({
 })
 ```
 
-## Exercise 3: `arrange()`
+## Exercise 6: `slice_min()`
 
-Sort `titanic_df` by the `fare` column, from **highest to lowest**.
+Find the **5 passengers who paid the least fare**.
 
 ```{webr}
-#| exercise: ex_arrange
+#| exercise: ex_6
 #| setup: true
 url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
 download.file(url, "titanic_df.csv")
@@ -106,26 +228,106 @@ titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
 ```
 
 ```{webr}
-#| exercise: ex_arrange
+#| exercise: ex_6
 titanic_df |> ______
 ```
 
-::: { .hint exercise="ex_arrange" }
-`arrange()` sorts ascending by default. To sort descending, put a minus sign in front of the column name.
+::: { .hint exercise="ex_6" }
+`slice_min()` works just like `slice_max()`, but the other way round. Use `order_by = fare` and `n = 5`.
 :::
 
-::: { .solution exercise="ex_arrange" }
+::: { .solution exercise="ex_6" }
 #### Solution
 
 ```{webr}
-#| exercise: ex_arrange
+#| exercise: ex_6
+#| solution: true
+titanic_df |> slice_min(order_by = fare, n = 5)
+```
+:::
+
+```{webr}
+#| exercise: ex_6
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - those are the 5 cheapest fares.")
+  fail("Not quite. Make sure you're using slice_min(), not slice_max().")
+})
+```
+
+## Exercise 7: `arrange()`, ascending
+
+Sort `titanic_df` by `age`, **youngest first**.
+
+```{webr}
+#| exercise: ex_7
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_7
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_7" }
+`arrange()` sorts ascending (smallest first) by default - you don't need any extra symbols here.
+:::
+
+::: { .solution exercise="ex_7" }
+#### Solution
+
+```{webr}
+#| exercise: ex_7
+#| solution: true
+titanic_df |> arrange(age)
+```
+:::
+
+```{webr}
+#| exercise: ex_7
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - youngest passengers first.")
+  fail("Not quite - check whether you need a minus sign here or not.")
+})
+```
+
+## Exercise 8: `arrange()`, descending
+
+Sort `titanic_df` by `fare`, from **highest to lowest**.
+
+```{webr}
+#| exercise: ex_8
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_8
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_8" }
+To sort descending, put a minus sign in front of the column name.
+:::
+
+::: { .solution exercise="ex_8" }
+#### Solution
+
+```{webr}
+#| exercise: ex_8
 #| solution: true
 titanic_df |> arrange(-fare)
 ```
 :::
 
 ```{webr}
-#| exercise: ex_arrange
+#| exercise: ex_8
 #| check: true
 gradethis::grade_this({
   pass_if_equal(explanation = "That's it - sorted from highest to lowest fare.")
@@ -133,12 +335,12 @@ gradethis::grade_this({
 })
 ```
 
-## Exercise 4: putting it together with the pipe
+## Stretch exercise 9: combining verbs with the pipe
 
 In **one** piped sequence, starting from `titanic_df`: keep only the `name`, `pclass`, and `fare` columns, and sort the result by `fare`, from highest to lowest.
 
 ```{webr}
-#| exercise: ex_pipe
+#| exercise: ex_9
 #| setup: true
 url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
 download.file(url, "titanic_df.csv")
@@ -146,21 +348,21 @@ titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
 ```
 
 ```{webr}
-#| exercise: ex_pipe
+#| exercise: ex_9
 titanic_df |>
   ______ |>
   ______
 ```
 
-::: { .hint exercise="ex_pipe" }
+::: { .hint exercise="ex_9" }
 You'll need two verbs chained together with `|>`: one to keep the three columns, and one to sort them. The order you do them in doesn't matter here.
 :::
 
-::: { .solution exercise="ex_pipe" }
+::: { .solution exercise="ex_9" }
 #### Solution
 
 ```{webr}
-#| exercise: ex_pipe
+#| exercise: ex_9
 #| solution: true
 titanic_df |>
   select(name, pclass, fare) |>
@@ -169,10 +371,56 @@ titanic_df |>
 :::
 
 ```{webr}
-#| exercise: ex_pipe
+#| exercise: ex_9
 #| check: true
 gradethis::grade_this({
   pass_if_equal(explanation = "Great work - you've combined select() and arrange() in a single pipe.")
   fail("Not quite. You need both the three right columns *and* the right sort order.")
+})
+```
+
+## Stretch exercise 10: a longer pipeline
+
+Starting from `titanic_df`, in **one** piped sequence: find the **10 passengers who paid the highest fare**, keep only the `name`, `pclass`, and `fare` columns, then sort the result first by `pclass` (ascending), and then by `fare` (descending) *within* each class.
+
+```{webr}
+#| exercise: ex_10
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_10
+titanic_df |>
+  ______ |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_10" }
+Three verbs this time: `slice_max()` to get the top 10 fares, `select()` to keep the three columns, and `arrange()` with **two** column names to sort by class then fare. Remember you can list more than one column in `arrange()`, separated by a comma.
+:::
+
+::: { .solution exercise="ex_10" }
+#### Solution
+
+```{webr}
+#| exercise: ex_10
+#| solution: true
+titanic_df |>
+  slice_max(order_by = fare, n = 10) |>
+  select(name, pclass, fare) |>
+  arrange(pclass, -fare)
+```
+:::
+
+```{webr}
+#| exercise: ex_10
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Excellent - that's a proper multi-step pipeline, well done!")
+  fail("Not quite there. Check each step separately: the 10 highest fares, the right three columns, then sorted by pclass and -fare together.")
 })
 ```

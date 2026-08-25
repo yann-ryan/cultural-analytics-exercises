@@ -1,0 +1,524 @@
+---
+title: "Data Analysis 3: Practice Exercises"
+subtitle: "joins and tidying data"
+format: live-html
+webr:
+  packages: ['dplyr', 'readr', 'tidyr', 'tibble']
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+{{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
+
+These exercises practise `left_join()` and `pivot_longer()` from the *Data Analysis 3* part of the course book. They also give you a chance to combine these with everything else you've learned so far - `select()`, `filter()`, `mutate()`, `arrange()`, `group_by()`, and `summarise()`.
+
+(The "data challenge" exercise from this part of the book - cleaning a real, messy dataset - is deliberately not included here, since it's too open-ended for automatic checking. Do that one in Posit Cloud as usual!)
+
+Write your code in the box, then click **Run Code** to see the result and get feedback.
+
+The last two exercises are a bit more of a stretch - come back to them once you're comfortable with the rest.
+
+## Exercise 1: `left_join()`
+
+Join `titanic_df` with `locations_df`, matching the `embarked` column in `titanic_df` to the `code` column in `locations_df`.
+
+```{webr}
+#| exercise: ex_1
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+
+locations_df <- tribble(
+  ~code, ~location_name,  ~country,         ~lat,  ~lng,
+  "Q",   "Queenstown",    "Ireland",        51.85, -8.29,
+  "S",   "Southampton",   "United Kingdom", 50.9,  -1.4,
+  "C",   "Cherbourg",     "France",         49.63, -1.62
+)
+```
+
+```{webr}
+#| exercise: ex_1
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_1" }
+`left_join(locations_df, by = c('embarked' = 'code'))`. The column names differ between the two datasets, so you need to say which matches which.
+:::
+
+::: { .solution exercise="ex_1" }
+#### Solution
+
+```{webr}
+#| exercise: ex_1
+#| solution: true
+titanic_df |> left_join(locations_df, by = c('embarked' = 'code'))
+```
+:::
+
+```{webr}
+#| exercise: ex_1
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - the location information is now attached to every passenger.")
+  fail("Not quite. Check the by = argument - which column in each dataset should be matched?")
+})
+```
+
+## Exercise 2: join, then select
+
+Do the same join as before, then keep only the `name`, `embarked`, `location_name`, and `country` columns.
+
+```{webr}
+#| exercise: ex_2
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+
+locations_df <- tribble(
+  ~code, ~location_name,  ~country,         ~lat,  ~lng,
+  "Q",   "Queenstown",    "Ireland",        51.85, -8.29,
+  "S",   "Southampton",   "United Kingdom", 50.9,  -1.4,
+  "C",   "Cherbourg",     "France",         49.63, -1.62
+)
+```
+
+```{webr}
+#| exercise: ex_2
+titanic_df |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_2" }
+First `left_join()` as in exercise 1, then pipe into `select()` with the four column names.
+:::
+
+::: { .solution exercise="ex_2" }
+#### Solution
+
+```{webr}
+#| exercise: ex_2
+#| solution: true
+titanic_df |>
+  left_join(locations_df, by = c('embarked' = 'code')) |>
+  select(name, embarked, location_name, country)
+```
+:::
+
+```{webr}
+#| exercise: ex_2
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - joined and trimmed down to four columns.")
+  fail("Not quite. Check both the join and the four column names.")
+})
+```
+
+## Exercise 3: join, then filter
+
+Join `titanic_df` to `locations_df` as before, then keep only the passengers who embarked in **France**.
+
+```{webr}
+#| exercise: ex_3
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+
+locations_df <- tribble(
+  ~code, ~location_name,  ~country,         ~lat,  ~lng,
+  "Q",   "Queenstown",    "Ireland",        51.85, -8.29,
+  "S",   "Southampton",   "United Kingdom", 50.9,  -1.4,
+  "C",   "Cherbourg",     "France",         49.63, -1.62
+)
+```
+
+```{webr}
+#| exercise: ex_3
+titanic_df |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_3" }
+Join first, then `filter(country == 'France')`. Notice you're filtering on a column that only exists *after* the join.
+:::
+
+::: { .solution exercise="ex_3" }
+#### Solution
+
+```{webr}
+#| exercise: ex_3
+#| solution: true
+titanic_df |>
+  left_join(locations_df, by = c('embarked' = 'code')) |>
+  filter(country == 'France')
+```
+:::
+
+```{webr}
+#| exercise: ex_3
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - just the passengers who boarded in France.")
+  fail("Not quite. Check the country name is spelled exactly right, and that you're filtering after the join.")
+})
+```
+
+## Exercise 4: join, group, and count
+
+Join `titanic_df` to `locations_df`, then calculate the total number of passengers (`total`) for each `country`.
+
+```{webr}
+#| exercise: ex_4
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+
+locations_df <- tribble(
+  ~code, ~location_name,  ~country,         ~lat,  ~lng,
+  "Q",   "Queenstown",    "Ireland",        51.85, -8.29,
+  "S",   "Southampton",   "United Kingdom", 50.9,  -1.4,
+  "C",   "Cherbourg",     "France",         49.63, -1.62
+)
+```
+
+```{webr}
+#| exercise: ex_4
+titanic_df |>
+  ______ |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_4" }
+Join, then `group_by(country)`, then `summarise(total = n())`.
+:::
+
+::: { .solution exercise="ex_4" }
+#### Solution
+
+```{webr}
+#| exercise: ex_4
+#| solution: true
+titanic_df |>
+  left_join(locations_df, by = c('embarked' = 'code')) |>
+  group_by(country) |>
+  summarise(total = n())
+```
+:::
+
+```{webr}
+#| exercise: ex_4
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - one row per country, with the right totals.")
+  fail("Not quite. Check you're grouping by country (not embarked), and that the new column is called total.")
+})
+```
+
+## Exercise 5: join, group by two variables
+
+Do the same again, but this time calculate the total number of passengers (`total`) for each combination of `country` **and** `sex`.
+
+```{webr}
+#| exercise: ex_5
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+
+locations_df <- tribble(
+  ~code, ~location_name,  ~country,         ~lat,  ~lng,
+  "Q",   "Queenstown",    "Ireland",        51.85, -8.29,
+  "S",   "Southampton",   "United Kingdom", 50.9,  -1.4,
+  "C",   "Cherbourg",     "France",         49.63, -1.62
+)
+```
+
+```{webr}
+#| exercise: ex_5
+titanic_df |>
+  ______ |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_5" }
+Same as exercise 4, but `group_by()` two columns this time: `country` and `sex`.
+:::
+
+::: { .solution exercise="ex_5" }
+#### Solution
+
+```{webr}
+#| exercise: ex_5
+#| solution: true
+titanic_df |>
+  left_join(locations_df, by = c('embarked' = 'code')) |>
+  group_by(country, sex) |>
+  summarise(total = n())
+```
+:::
+
+```{webr}
+#| exercise: ex_5
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Great work - one row per country and sex combination.")
+  fail("Not quite. Check you're grouping by both country and sex.")
+})
+```
+
+## Exercise 6: `pivot_longer()`
+
+`gapminder_population` is a **wide** dataset: one row per European country, with a separate column for each year's population. Reshape it into **long** format, so that each row is a single country-year observation. Call the new columns `year` and `population`.
+
+```{webr}
+#| exercise: ex_6
+#| setup: true
+url <- "https://vincentarelbundock.github.io/Rdatasets/csv/gapminder/gapminder.csv"
+download.file(url, "gapminder.csv")
+gapminder_df <- read_csv("gapminder.csv", show_col_types = FALSE)
+
+gapminder_population <- gapminder_df |>
+  filter(continent == 'Europe') |>
+  select(country, year, pop) |>
+  pivot_wider(names_from = year, values_from = pop)
+```
+
+```{webr}
+#| exercise: ex_6
+gapminder_population |> ______
+```
+
+::: { .hint exercise="ex_6" }
+`pivot_longer(cols = 2:13, names_to = 'year', values_to = 'population')`. Columns 2 to 13 are all the year columns - column 1 is `country`.
+:::
+
+::: { .solution exercise="ex_6" }
+#### Solution
+
+```{webr}
+#| exercise: ex_6
+#| solution: true
+gapminder_population |> pivot_longer(cols = 2:13, names_to = 'year', values_to = 'population')
+```
+:::
+
+```{webr}
+#| exercise: ex_6
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - one row per country per year.")
+  fail("Not quite. Check the column range, and the names you've given to names_to and values_to.")
+})
+```
+
+## Exercise 7: reshape, then filter
+
+Reshape `gapminder_population` as before, then keep only the rows for the year **2007**.
+
+::: { .callout-note }
+After `pivot_longer()`, the new `year` column contains **text**, not numbers (because the original column headings were text). Good practice is to filter using `"2007"`, in quotation marks - R will actually convert a bare `2007` for you when comparing it to a text column, but it's worth knowing which type you're working with, since not every function is this forgiving.
+:::
+
+```{webr}
+#| exercise: ex_7
+#| setup: true
+url <- "https://vincentarelbundock.github.io/Rdatasets/csv/gapminder/gapminder.csv"
+download.file(url, "gapminder.csv")
+gapminder_df <- read_csv("gapminder.csv", show_col_types = FALSE)
+
+gapminder_population <- gapminder_df |>
+  filter(continent == 'Europe') |>
+  select(country, year, pop) |>
+  pivot_wider(names_from = year, values_from = pop)
+```
+
+```{webr}
+#| exercise: ex_7
+gapminder_population |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_7" }
+Pivot first, then `filter(year == "2007")`.
+:::
+
+::: { .solution exercise="ex_7" }
+#### Solution
+
+```{webr}
+#| exercise: ex_7
+#| solution: true
+gapminder_population |>
+  pivot_longer(cols = 2:13, names_to = 'year', values_to = 'population') |>
+  filter(year == "2007")
+```
+:::
+
+```{webr}
+#| exercise: ex_7
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - every European country's population in 2007.")
+  fail("Not quite. Remember that after pivoting, `year` is text - so compare it to \"2007\" in quotes.")
+})
+```
+
+## Exercise 8: reshape, then arrange
+
+Reshape `gapminder_population` as before, then sort the result by `population`, from **highest to lowest**.
+
+```{webr}
+#| exercise: ex_8
+#| setup: true
+url <- "https://vincentarelbundock.github.io/Rdatasets/csv/gapminder/gapminder.csv"
+download.file(url, "gapminder.csv")
+gapminder_df <- read_csv("gapminder.csv", show_col_types = FALSE)
+
+gapminder_population <- gapminder_df |>
+  filter(continent == 'Europe') |>
+  select(country, year, pop) |>
+  pivot_wider(names_from = year, values_from = pop)
+```
+
+```{webr}
+#| exercise: ex_8
+gapminder_population |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_8" }
+Pivot first, then `arrange(-population)`.
+:::
+
+::: { .solution exercise="ex_8" }
+#### Solution
+
+```{webr}
+#| exercise: ex_8
+#| solution: true
+gapminder_population |>
+  pivot_longer(cols = 2:13, names_to = 'year', values_to = 'population') |>
+  arrange(-population)
+```
+:::
+
+```{webr}
+#| exercise: ex_8
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - largest populations first.")
+  fail("Not quite. Check you've pivoted first, and that you're sorting in descending order.")
+})
+```
+
+## Stretch exercise 9: reshape, group, and summarise
+
+Reshape `gapminder_population`, then calculate the **average** population (call it `avg_pop`) for each `country`, across all the years in the data.
+
+```{webr}
+#| exercise: ex_9
+#| setup: true
+url <- "https://vincentarelbundock.github.io/Rdatasets/csv/gapminder/gapminder.csv"
+download.file(url, "gapminder.csv")
+gapminder_df <- read_csv("gapminder.csv", show_col_types = FALSE)
+
+gapminder_population <- gapminder_df |>
+  filter(continent == 'Europe') |>
+  select(country, year, pop) |>
+  pivot_wider(names_from = year, values_from = pop)
+```
+
+```{webr}
+#| exercise: ex_9
+gapminder_population |>
+  ______ |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_9" }
+Three steps: `pivot_longer()`, then `group_by(country)`, then `summarise(avg_pop = mean(population, na.rm = TRUE))`.
+:::
+
+::: { .solution exercise="ex_9" }
+#### Solution
+
+```{webr}
+#| exercise: ex_9
+#| solution: true
+gapminder_population |>
+  pivot_longer(cols = 2:13, names_to = 'year', values_to = 'population') |>
+  group_by(country) |>
+  summarise(avg_pop = mean(population, na.rm = TRUE))
+```
+:::
+
+```{webr}
+#| exercise: ex_9
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Excellent - one average population figure per country.")
+  fail("Not quite there. Check each step: the reshape, the grouping column, and the summary column name and calculation.")
+})
+```
+
+## Stretch exercise 10: join, mutate, and arrange
+
+Join `titanic_df` to `locations_df` as in the earlier exercises. Then create a new column called `name_country`, which pastes together the passenger's `name` and their `country`, separated by `" - "` (for example: `"Allen, Miss. Elisabeth Walton - United Kingdom"`). Finally, sort the result by `country`.
+
+```{webr}
+#| exercise: ex_10
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+
+locations_df <- tribble(
+  ~code, ~location_name,  ~country,         ~lat,  ~lng,
+  "Q",   "Queenstown",    "Ireland",        51.85, -8.29,
+  "S",   "Southampton",   "United Kingdom", 50.9,  -1.4,
+  "C",   "Cherbourg",     "France",         49.63, -1.62
+)
+```
+
+```{webr}
+#| exercise: ex_10
+titanic_df |>
+  ______ |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_10" }
+Join, then `mutate(name_country = paste(name, "-", country))`, then `arrange(country)`. Remember `paste()` puts spaces between its pieces by default, so `paste(name, "-", country)` already gives you `"name - country"`.
+:::
+
+::: { .solution exercise="ex_10" }
+#### Solution
+
+```{webr}
+#| exercise: ex_10
+#| solution: true
+titanic_df |>
+  left_join(locations_df, by = c('embarked' = 'code')) |>
+  mutate(name_country = paste(name, "-", country)) |>
+  arrange(country)
+```
+:::
+
+```{webr}
+#| exercise: ex_10
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Fantastic - joined, a new pasted-together column, and sorted by country. That's everything from this part of the course in one pipeline!")
+  fail("Not quite there. Check the join, the exact text pasted into name_country, and the final sort.")
+})
+```

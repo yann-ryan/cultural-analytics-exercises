@@ -1,0 +1,435 @@
+---
+title: "Data Analysis 2: Practice Exercises"
+subtitle: "filter, mutate, summarise, and grouping"
+format: live-html
+webr:
+  packages: ['dplyr', 'readr']
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+{{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
+
+These exercises let you practise the verbs from the *Data Analysis 2* part of the course book: `filter()`, `mutate()`, `summarise()`, and `group_by()`. They all use the same `titanic_df` dataset from the course.
+
+Write your code in the box, then click **Run Code** to see the result and get feedback.
+
+The last two exercises are a bit more of a stretch - come back to them once you're comfortable with the rest.
+
+## Exercise 1: `filter()` with one condition
+
+Filter `titanic_df` to keep only the **female** passengers.
+
+```{webr}
+#| exercise: ex_1
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_1
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_1" }
+Use `filter()` with `sex == 'female'`. Remember filter needs a double equals sign to check equality.
+:::
+
+::: { .solution exercise="ex_1" }
+#### Solution
+
+```{webr}
+#| exercise: ex_1
+#| solution: true
+titanic_df |> filter(sex == 'female')
+```
+:::
+
+```{webr}
+#| exercise: ex_1
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - just the female passengers.")
+  fail("Not quite. Check you're using a double equals sign (==), and the exact text 'female'.")
+})
+```
+
+## Exercise 2: `filter()` with a numeric condition
+
+Filter `titanic_df` to keep only passengers **under 18 years old**.
+
+```{webr}
+#| exercise: ex_2
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_2
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_2" }
+Use the `<` comparison on the `age` column.
+:::
+
+::: { .solution exercise="ex_2" }
+#### Solution
+
+```{webr}
+#| exercise: ex_2
+#| solution: true
+titanic_df |> filter(age < 18)
+```
+:::
+
+```{webr}
+#| exercise: ex_2
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - everyone under 18.")
+  fail("Not quite. Double check the comparison and the column you're using.")
+})
+```
+
+## Exercise 3: combining conditions with `&`
+
+Filter `titanic_df` to keep only passengers who were in **first class AND survived**.
+
+```{webr}
+#| exercise: ex_3
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_3
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_3" }
+`pclass == 1` for first class, `survived == 1` for survivors, joined with `&`.
+:::
+
+::: { .solution exercise="ex_3" }
+#### Solution
+
+```{webr}
+#| exercise: ex_3
+#| solution: true
+titanic_df |> filter(pclass == 1 & survived == 1)
+```
+:::
+
+```{webr}
+#| exercise: ex_3
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - first class survivors.")
+  fail("Not quite. You need both conditions to be true at once - check you're using & and the right values.")
+})
+```
+
+## Exercise 4: combining conditions with `|`
+
+Filter `titanic_df` to keep passengers where **either** the fare was more than 100, **or** they were in first class.
+
+```{webr}
+#| exercise: ex_4
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_4
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_4" }
+Use `|` instead of `&` to mean "either condition can be true".
+:::
+
+::: { .solution exercise="ex_4" }
+#### Solution
+
+```{webr}
+#| exercise: ex_4
+#| solution: true
+titanic_df |> filter(fare > 100 | pclass == 1)
+```
+:::
+
+```{webr}
+#| exercise: ex_4
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - either condition qualifies a row.")
+  fail("Not quite. Remember | means 'at least one of these is true', which is different to &.")
+})
+```
+
+## Exercise 5: `%in%`
+
+Filter `titanic_df` to keep only passengers who embarked at **Cherbourg (C) or Queenstown (Q)**.
+
+```{webr}
+#| exercise: ex_5
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_5
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_5" }
+Use `embarked %in% c('C', 'Q')`.
+:::
+
+::: { .solution exercise="ex_5" }
+#### Solution
+
+```{webr}
+#| exercise: ex_5
+#| solution: true
+titanic_df |> filter(embarked %in% c('C', 'Q'))
+```
+:::
+
+```{webr}
+#| exercise: ex_5
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - Cherbourg and Queenstown passengers.")
+  fail("Not quite. Check the two letter codes and that you're using %in% with c().")
+})
+```
+
+## Exercise 6: `mutate()`
+
+Create a new column called `price_today`, equal to `fare` multiplied by `78.17` (an approximate inflation adjustment).
+
+```{webr}
+#| exercise: ex_6
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_6
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_6" }
+`mutate(price_today = fare * 78.17)`
+:::
+
+::: { .solution exercise="ex_6" }
+#### Solution
+
+```{webr}
+#| exercise: ex_6
+#| solution: true
+titanic_df |> mutate(price_today = fare * 78.17)
+```
+:::
+
+```{webr}
+#| exercise: ex_6
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - a new price_today column.")
+  fail("Not quite. Check the new column name and the calculation.")
+})
+```
+
+## Exercise 7: `mutate()` with `if_else()`
+
+Create a new column called `status`, which is `'child'` if `age` is less than 18, and `'adult'` otherwise.
+
+```{webr}
+#| exercise: ex_7
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_7
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_7" }
+`mutate(status = if_else(age < 18, 'child', 'adult'))`
+:::
+
+::: { .solution exercise="ex_7" }
+#### Solution
+
+```{webr}
+#| exercise: ex_7
+#| solution: true
+titanic_df |> mutate(status = if_else(age < 18, 'child', 'adult'))
+```
+:::
+
+```{webr}
+#| exercise: ex_7
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Correct - a status column of child/adult.")
+  fail("Not quite. Check the condition, and the two text values 'child' and 'adult'.")
+})
+```
+
+## Exercise 8: `summarise()`
+
+In a single `summarise()`, calculate the average (mean) `age`, calling it `mean_age`, and the maximum `fare`, calling it `max_fare`.
+
+```{webr}
+#| exercise: ex_8
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_8
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_8" }
+`summarise(mean_age = mean(age, na.rm = TRUE), max_fare = max(fare, na.rm = TRUE))`. The `na.rm = TRUE` matters here, since some ages are missing.
+:::
+
+::: { .solution exercise="ex_8" }
+#### Solution
+
+```{webr}
+#| exercise: ex_8
+#| solution: true
+titanic_df |> summarise(mean_age = mean(age, na.rm = TRUE), max_fare = max(fare, na.rm = TRUE))
+```
+:::
+
+```{webr}
+#| exercise: ex_8
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "That's it - both summary values, correctly named.")
+  fail("Not quite. Check your column names match exactly, and don't forget na.rm = TRUE.")
+})
+```
+
+## Stretch exercise 9: `group_by()` and `summarise()`
+
+For each passenger class (`pclass`), calculate the total number of passengers (call it `total`) and the average fare paid (call it `avg_fare`).
+
+```{webr}
+#| exercise: ex_9
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_9
+titanic_df |>
+  ______ |>
+  ______
+```
+
+::: { .hint exercise="ex_9" }
+`group_by(pclass)`, then `summarise(total = n(), avg_fare = mean(fare, na.rm = TRUE))`.
+:::
+
+::: { .solution exercise="ex_9" }
+#### Solution
+
+```{webr}
+#| exercise: ex_9
+#| solution: true
+titanic_df |>
+  group_by(pclass) |>
+  summarise(total = n(), avg_fare = mean(fare, na.rm = TRUE))
+```
+:::
+
+```{webr}
+#| exercise: ex_9
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Great work - one row per class, with the right totals and averages.")
+  fail("Not quite. Check you're grouping by the right column, and that both summary columns are named and calculated correctly.")
+})
+```
+
+## Stretch exercise 10: `mutate()` with `case_when()`
+
+Create a new column called `status`, with **three** categories based on `age`: `'child'` for under 13, `'teenager'` for 13 up to (but not including) 20, and `'adult'` for 20 and over.
+
+```{webr}
+#| exercise: ex_10
+#| setup: true
+url <- "https://raw.githubusercontent.com/yann-ryan/infovis-course/master/titanic_df_full.csv"
+download.file(url, "titanic_df.csv")
+titanic_df <- read_csv("titanic_df.csv", show_col_types = FALSE)
+```
+
+```{webr}
+#| exercise: ex_10
+titanic_df |> ______
+```
+
+::: { .hint exercise="ex_10" }
+`case_when()` takes a series of `condition ~ value` pairs, checked in order:
+
+```r
+mutate(status = case_when(
+  age < 13 ~ "child",
+  age < 20 ~ "teenager",
+  age >= 20 ~ "adult"
+))
+```
+
+Because `case_when()` checks each condition in order and stops at the first match, you don't need to repeat `age >= 13` for the teenager row.
+:::
+
+::: { .solution exercise="ex_10" }
+#### Solution
+
+```{webr}
+#| exercise: ex_10
+#| solution: true
+titanic_df |>
+  mutate(status = case_when(
+    age < 13 ~ "child",
+    age < 20 ~ "teenager",
+    age >= 20 ~ "adult"
+  ))
+```
+:::
+
+```{webr}
+#| exercise: ex_10
+#| check: true
+gradethis::grade_this({
+  pass_if_equal(explanation = "Excellent - all three age categories, correctly assigned.")
+  fail("Not quite there yet. Check each of the three age boundaries carefully, and the exact spelling of each category.")
+})
+```
