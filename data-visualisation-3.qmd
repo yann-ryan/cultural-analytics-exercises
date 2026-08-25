@@ -1,0 +1,476 @@
+---
+title: "Data Visualisation 3: Practice Exercises"
+subtitle: "titles, themes, and annotations"
+format: live-html
+webr:
+  packages: ['dplyr', 'readr', 'ggplot2']
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+{{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
+
+These exercises practise titles, themes, and annotations from the *Data Visualisation 3* part of the course book, using `gapminder_df`.
+
+Like the other ggplot2 exercises, these are checked by comparing your **code** to a model solution, so the feedback will point you to a specific part of your code to fix.
+
+The last two exercises are a bit more of a stretch - come back to them once you're comfortable with the rest.
+
+## Exercise 1: adding a title
+
+Starting from the chart below, add a title reading `"GDP and Life\nExpectancy"` (the `\n` starts a new line).
+
+```{webr}
+#| exercise: ex_1
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+```
+
+```{webr}
+#| exercise: ex_1
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  ______
+```
+
+::: { .hint exercise="ex_1" }
+`labs(title = "GDP and Life\nExpectancy")`
+:::
+
+::: { .solution exercise="ex_1" }
+#### Solution
+
+```{webr}
+#| exercise: ex_1
+#| solution: true
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  labs(title = "GDP and Life\nExpectancy")
+```
+:::
+
+```{webr}
+#| exercise: ex_1
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 2: a subtitle, and removing an axis label
+
+Copy the chart from exercise 1. Add a subtitle reading `"2007"`, and remove the x axis label entirely (set it to `NULL`).
+
+```{webr}
+#| exercise: ex_2
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+```
+
+```{webr}
+#| exercise: ex_2
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  labs(title = "GDP and Life\nExpectancy",
+       subtitle = ______,
+       x = ______)
+```
+
+::: { .hint exercise="ex_2" }
+Both `subtitle` and `x` go inside the same `labs()` call as `title`.
+:::
+
+::: { .solution exercise="ex_2" }
+#### Solution
+
+```{webr}
+#| exercise: ex_2
+#| solution: true
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  labs(title = "GDP and Life\nExpectancy",
+       subtitle = "2007",
+       x = NULL)
+```
+:::
+
+```{webr}
+#| exercise: ex_2
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 3: a preset theme
+
+Copy the chart from exercise 1, and add the preset theme `theme_light()`.
+
+```{webr}
+#| exercise: ex_3
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+```
+
+```{webr}
+#| exercise: ex_3
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  ______
+```
+
+::: { .hint exercise="ex_3" }
+Preset themes are added just like any other layer: `+ theme_light()`.
+:::
+
+::: { .solution exercise="ex_3" }
+#### Solution
+
+```{webr}
+#| exercise: ex_3
+#| solution: true
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  theme_light()
+```
+:::
+
+```{webr}
+#| exercise: ex_3
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 4: rotating axis text
+
+`americas_df` is a bar chart of `gdpPercap` by `country`. The country names overlap. Add a `theme()` layer that rotates the x axis text (`axis.text.x`) by `45` degrees, with `hjust` and `vjust` both set to `1`.
+
+```{webr}
+#| exercise: ex_4
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+americas_df <- gapminder_df |> filter(continent == 'Americas' & year == 2007)
+```
+
+```{webr}
+#| exercise: ex_4
+americas_df |>
+  ggplot(aes(x = country, y = gdpPercap)) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = ______, hjust = ______, vjust = ______))
+```
+
+::: { .hint exercise="ex_4" }
+All three values mentioned in the instructions go inside the same `element_text()`.
+:::
+
+::: { .solution exercise="ex_4" }
+#### Solution
+
+```{webr}
+#| exercise: ex_4
+#| solution: true
+americas_df |>
+  ggplot(aes(x = country, y = gdpPercap)) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+```
+:::
+
+```{webr}
+#| exercise: ex_4
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 5: labelling every point
+
+Copy the chart from exercise 1, and add a `geom_text()` layer that labels every point with its `country`. (You'll see why this is a bad idea for a chart this crowded - that's the point of the next exercise!)
+
+```{webr}
+#| exercise: ex_5
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+```
+
+```{webr}
+#| exercise: ex_5
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  ______ +
+  labs(title = "GDP and Life\nExpectancy")
+```
+
+::: { .hint exercise="ex_5" }
+`geom_text(aes(label = country), size = 3)`
+:::
+
+::: { .solution exercise="ex_5" }
+#### Solution
+
+```{webr}
+#| exercise: ex_5
+#| solution: true
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  geom_text(aes(label = country), size = 3) +
+  labs(title = "GDP and Life\nExpectancy")
+```
+:::
+
+```{webr}
+#| exercise: ex_5
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 6: labelling a chosen few
+
+`df_text` is `df` filtered to just Ireland and Iceland. Copy the chart from exercise 1, and add a `geom_text()` layer that labels **only** these two countries. You'll need to set `data = df_text` inside `geom_text()`, as well as the `label` aesthetic.
+
+```{webr}
+#| exercise: ex_6
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+df_text <- df |> filter(country %in% c('Ireland', 'Iceland'))
+```
+
+```{webr}
+#| exercise: ex_6
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  geom_text(data = ______, aes(label = ______), size = 4) +
+  labs(title = "GDP and Life\nExpectancy")
+```
+
+::: { .hint exercise="ex_6" }
+`data = df_text`, and `label = country`.
+:::
+
+::: { .solution exercise="ex_6" }
+#### Solution
+
+```{webr}
+#| exercise: ex_6
+#| solution: true
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  geom_text(data = df_text, aes(label = country), size = 4) +
+  labs(title = "GDP and Life\nExpectancy")
+```
+:::
+
+```{webr}
+#| exercise: ex_6
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 7: `annotate()` with text and a curve
+
+Copy the chart from exercise 1. Add an `annotate()` layer with `geom = 'text'`, at `x = 76, y = 45000`, labelled `"Netherlands"`. Then add a second `annotate()` layer with `geom = 'curve'`, running from `x = 76, y = 44000` to `xend = 79.76, yend = 36797`, with an `arrow = arrow(type = 'closed', length = unit(2, 'mm'))`.
+
+```{webr}
+#| exercise: ex_7
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+```
+
+```{webr}
+#| exercise: ex_7
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  annotate(geom = ______, x = 76, y = 45000, label = ______) +
+  annotate(geom = ______, x = 76, y = 44000, xend = ______, yend = ______,
+           arrow = arrow(type = 'closed', length = unit(2, 'mm')))
+```
+
+::: { .hint exercise="ex_7" }
+The first `annotate()` needs `geom = 'text'` and `label = "Netherlands"`. The second needs `geom = 'curve'`, `xend = 79.76`, and `yend = 36797`.
+:::
+
+::: { .solution exercise="ex_7" }
+#### Solution
+
+```{webr}
+#| exercise: ex_7
+#| solution: true
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  annotate(geom = 'text', x = 76, y = 45000, label = "Netherlands") +
+  annotate(geom = 'curve', x = 76, y = 44000, xend = 79.76, yend = 36797,
+           arrow = arrow(type = 'closed', length = unit(2, 'mm')))
+```
+:::
+
+```{webr}
+#| exercise: ex_7
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 8: `annotate()` with a rectangle
+
+`western_europe_df` is a line chart of `gdpPercap` over time for five countries. Add an `annotate()` layer with `geom = 'rect'`, covering `xmin = 1960` to `xmax = 1980`, from `ymin = 0` to `ymax = Inf`, with `alpha = .5`.
+
+```{webr}
+#| exercise: ex_8
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+western_europe_df <- gapminder_df |> filter(country %in% c('Netherlands', 'France', 'Ireland', 'Germany', 'Spain'))
+```
+
+```{webr}
+#| exercise: ex_8
+western_europe_df |>
+  ggplot(aes(x = year, y = gdpPercap, color = country)) +
+  geom_line() +
+  annotate(geom = ______, xmin = ______, xmax = ______, ymin = ______, ymax = ______, alpha = .5)
+```
+
+::: { .hint exercise="ex_8" }
+`annotate(geom = 'rect', xmin = 1960, xmax = 1980, ymin = 0, ymax = Inf, alpha = .5)`
+:::
+
+::: { .solution exercise="ex_8" }
+#### Solution
+
+```{webr}
+#| exercise: ex_8
+#| solution: true
+western_europe_df |>
+  ggplot(aes(x = year, y = gdpPercap, color = country)) +
+  geom_line() +
+  annotate(geom = 'rect', xmin = 1960, xmax = 1980, ymin = 0, ymax = Inf, alpha = .5)
+```
+:::
+
+```{webr}
+#| exercise: ex_8
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Stretch exercise 9: pasted-together labels
+
+`df_text2` is `df` filtered to Ireland and Iceland, with a new column `country_gdp`, pasting together the country name, `" ("`, the rounded `gdpPercap`, and `")"` (with no separator between them). Add a `geom_text()` layer using `df_text2`, labelling each point with `country_gdp`, coloured fixed black (not mapped).
+
+```{webr}
+#| exercise: ex_9
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+df_text2 <- df |>
+  filter(country %in% c('Ireland', 'Iceland')) |>
+  mutate(country_gdp = paste(country, " (", round(gdpPercap), ")", sep = ''))
+```
+
+```{webr}
+#| exercise: ex_9
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  geom_text(data = ______, aes(label = ______), size = 4, color = ______) +
+  labs(title = "GDP and Life\nExpectancy")
+```
+
+::: { .hint exercise="ex_9" }
+`data = df_text2`, `label = country_gdp`, and `color = "black"` (fixed, so outside `aes()`).
+:::
+
+::: { .solution exercise="ex_9" }
+#### Solution
+
+```{webr}
+#| exercise: ex_9
+#| solution: true
+df |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  geom_point() +
+  geom_text(data = df_text2, aes(label = country_gdp), size = 4, color = "black") +
+  labs(title = "GDP and Life\nExpectancy")
+```
+:::
+
+```{webr}
+#| exercise: ex_9
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Stretch exercise 10: highlighting with colour
+
+`df_europe` is `df` filtered to Europe. `df_highlight` is `df_europe` filtered to just Ireland, the Netherlands, and France. Build a scatterplot of `df_europe` (`x = lifeExp, y = gdpPercap, size = pop_millions`), with **all** points coloured fixed `'gray50'` and `alpha = .8`. Then add a **second** `geom_point()` layer using `df_highlight`, coloured fixed `'red'`, to make those three countries stand out.
+
+```{webr}
+#| exercise: ex_10
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+df_europe <- df |> filter(continent == 'Europe')
+df_highlight <- df_europe |> filter(country %in% c('Ireland', 'Netherlands', 'France'))
+```
+
+```{webr}
+#| exercise: ex_10
+df_europe |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions)) +
+  geom_point(color = ______, alpha = .8) +
+  geom_point(data = ______, color = ______)
+```
+
+::: { .hint exercise="ex_10" }
+The first `geom_point()` uses `df_europe` (from the pipe) and `color = 'gray50'`. The second needs `data = df_highlight` and `color = 'red'`.
+:::
+
+::: { .solution exercise="ex_10" }
+#### Solution
+
+```{webr}
+#| exercise: ex_10
+#| solution: true
+df_europe |>
+  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions)) +
+  geom_point(color = 'gray50', alpha = .8) +
+  geom_point(data = df_highlight, color = 'red')
+```
+:::
+
+```{webr}
+#| exercise: ex_10
+#| check: true
+gradethis::grade_this_code()
+```
