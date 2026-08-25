@@ -1,0 +1,476 @@
+---
+title: "Data Visualisation 2: Practice Exercises"
+subtitle: "position and colour scales"
+format: live-html
+webr:
+  packages: ['dplyr', 'readr', 'ggplot2']
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+{{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
+
+These exercises practise position and colour scales from the *Data Visualisation 2* part of the course book, using the `gapminder_df` dataset.
+
+Like the ggplot2 exercises before these, they're checked by comparing your **code** to a model solution, so the feedback will point you to a specific part of your code to fix.
+
+The last two exercises are a bit more of a stretch - come back to them once you're comfortable with the rest.
+
+## Exercise 1: setting limits
+
+Starting from the chart below, add a `scale_x_continuous()` layer that limits the x axis to the years **1980** to **2000**.
+
+```{webr}
+#| exercise: ex_1
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+netherlands_df <- gapminder_df |> filter(country == 'Netherlands')
+```
+
+```{webr}
+#| exercise: ex_1
+netherlands_df |>
+  ggplot(aes(x = year, y = gdpPercap)) +
+  geom_line() +
+  ______
+```
+
+::: { .hint exercise="ex_1" }
+`scale_x_continuous(limits = c(1980, 2000))`
+:::
+
+::: { .solution exercise="ex_1" }
+#### Solution
+
+```{webr}
+#| exercise: ex_1
+#| solution: true
+netherlands_df |>
+  ggplot(aes(x = year, y = gdpPercap)) +
+  geom_line() +
+  scale_x_continuous(limits = c(1980, 2000))
+```
+:::
+
+```{webr}
+#| exercise: ex_1
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 2: setting breaks
+
+Copy the chart from exercise 1, and add `breaks` to the same `scale_x_continuous()`, so the axis only shows ticks at **1980, 1990, and 2000**.
+
+```{webr}
+#| exercise: ex_2
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+netherlands_df <- gapminder_df |> filter(country == 'Netherlands')
+```
+
+```{webr}
+#| exercise: ex_2
+netherlands_df |>
+  ggplot(aes(x = year, y = gdpPercap)) +
+  geom_line() +
+  scale_x_continuous(limits = c(1980, 2000),
+                      breaks = ______)
+```
+
+::: { .hint exercise="ex_2" }
+`breaks` takes a vector: `c(1980, 1990, 2000)`.
+:::
+
+::: { .solution exercise="ex_2" }
+#### Solution
+
+```{webr}
+#| exercise: ex_2
+#| solution: true
+netherlands_df |>
+  ggplot(aes(x = year, y = gdpPercap)) +
+  geom_line() +
+  scale_x_continuous(limits = c(1980, 2000),
+                      breaks = c(1980, 1990, 2000))
+```
+:::
+
+```{webr}
+#| exercise: ex_2
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 3: `reorder()`
+
+`americas_df` contains a handful of South American countries' data for 2002. Build a bar chart of `gdpPercap` by `country`, with the bars ordered from **highest to lowest**.
+
+```{webr}
+#| exercise: ex_3
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+americas_df <- gapminder_df |>
+  filter(country %in% c('Peru', 'Argentina', 'Brazil', 'Mexico', 'Chile', 'Colombia', 'Bolivia')) |>
+  filter(year == 2002)
+```
+
+```{webr}
+#| exercise: ex_3
+americas_df |>
+  ggplot(aes(x = reorder(______, ______), y = gdpPercap)) +
+  ______
+```
+
+::: { .hint exercise="ex_3" }
+`reorder(country, desc(gdpPercap))` orders the bars from highest to lowest. The geom is `geom_col()`.
+:::
+
+::: { .solution exercise="ex_3" }
+#### Solution
+
+```{webr}
+#| exercise: ex_3
+#| solution: true
+americas_df |>
+  ggplot(aes(x = reorder(country, desc(gdpPercap)), y = gdpPercap)) +
+  geom_col()
+```
+:::
+
+```{webr}
+#| exercise: ex_3
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 4: `reorder()` with `coord_flip()`
+
+Copy the chart from exercise 3, but this time order the bars so that after you add `coord_flip()`, the **highest** value appears at the **top**. (Hint: think about whether you still need `desc()` once the chart is flipped.)
+
+```{webr}
+#| exercise: ex_4
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+americas_df <- gapminder_df |>
+  filter(country %in% c('Peru', 'Argentina', 'Brazil', 'Mexico', 'Chile', 'Colombia', 'Bolivia')) |>
+  filter(year == 2002)
+```
+
+```{webr}
+#| exercise: ex_4
+americas_df |>
+  ggplot(aes(x = reorder(______, ______), y = gdpPercap)) +
+  geom_col() +
+  ______
+```
+
+::: { .hint exercise="ex_4" }
+Without `desc()` this time - `coord_flip()` reverses the vertical order, so removing `desc()` puts the highest value at the top.
+:::
+
+::: { .solution exercise="ex_4" }
+#### Solution
+
+```{webr}
+#| exercise: ex_4
+#| solution: true
+americas_df |>
+  ggplot(aes(x = reorder(country, gdpPercap), y = gdpPercap)) +
+  geom_col() +
+  coord_flip()
+```
+:::
+
+```{webr}
+#| exercise: ex_4
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 5: a continuous colour scale
+
+Using `sample_for_bar_chart`, build a bar chart with `country` on the x axis, `gdpPercap` on the y axis, and `lifeExp` mapped to `fill`. Then add `scale_fill_viridis_c()` as an extra layer.
+
+```{webr}
+#| exercise: ex_5
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+sample_for_bar_chart <- gapminder_df |>
+  filter(year == 2007) |>
+  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+```
+
+```{webr}
+#| exercise: ex_5
+sample_for_bar_chart |>
+  ggplot(aes(x = ______, y = ______, fill = ______)) +
+  geom_col() +
+  ______
+```
+
+::: { .hint exercise="ex_5" }
+`lifeExp` is numeric, so it needs a continuous scale: `scale_fill_viridis_c()`.
+:::
+
+::: { .solution exercise="ex_5" }
+#### Solution
+
+```{webr}
+#| exercise: ex_5
+#| solution: true
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+  geom_col() +
+  scale_fill_viridis_c()
+```
+:::
+
+```{webr}
+#| exercise: ex_5
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 6: a discrete colour palette
+
+Copy the chart from exercise 5, but map `continent` to `fill` instead, and use `scale_fill_brewer()` with the palette `'Set2'`.
+
+```{webr}
+#| exercise: ex_6
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+sample_for_bar_chart <- gapminder_df |>
+  filter(year == 2007) |>
+  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+```
+
+```{webr}
+#| exercise: ex_6
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = ______)) +
+  geom_col() +
+  ______
+```
+
+::: { .hint exercise="ex_6" }
+`scale_fill_brewer(palette = 'Set2')`. `continent` is categorical, so it gets a discrete scale.
+:::
+
+::: { .solution exercise="ex_6" }
+#### Solution
+
+```{webr}
+#| exercise: ex_6
+#| solution: true
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = continent)) +
+  geom_col() +
+  scale_fill_brewer(palette = 'Set2')
+```
+:::
+
+```{webr}
+#| exercise: ex_6
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 7: a custom gradient
+
+Copy the `lifeExp`-filled chart from exercise 5 again (without `scale_fill_viridis_c()` this time), and instead add your own two-colour gradient scale, running from `'firebrick'` (low) to `'gold'` (high).
+
+```{webr}
+#| exercise: ex_7
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+sample_for_bar_chart <- gapminder_df |>
+  filter(year == 2007) |>
+  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+```
+
+```{webr}
+#| exercise: ex_7
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+  geom_col() +
+  ______
+```
+
+::: { .hint exercise="ex_7" }
+`scale_fill_gradient(low = 'firebrick', high = 'gold')`
+:::
+
+::: { .solution exercise="ex_7" }
+#### Solution
+
+```{webr}
+#| exercise: ex_7
+#| solution: true
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+  geom_col() +
+  scale_fill_gradient(low = 'firebrick', high = 'gold')
+```
+:::
+
+```{webr}
+#| exercise: ex_7
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Exercise 8: `scale_fill_manual()`
+
+Copy the `continent`-filled chart from exercise 6 (without `scale_fill_brewer()` this time). South America, Europe, and Asia are the only continents in this data. Set their fill colours manually and in that order, to `'firebrick'`, `'forestgreen'`, and `'orange'`.
+
+```{webr}
+#| exercise: ex_8
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+sample_for_bar_chart <- gapminder_df |>
+  filter(year == 2007) |>
+  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+```
+
+```{webr}
+#| exercise: ex_8
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = continent)) +
+  geom_col() +
+  ______
+```
+
+::: { .hint exercise="ex_8" }
+`scale_fill_manual(values = c('firebrick', 'forestgreen', 'orange'))`
+:::
+
+::: { .solution exercise="ex_8" }
+#### Solution
+
+```{webr}
+#| exercise: ex_8
+#| solution: true
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = continent)) +
+  geom_col() +
+  scale_fill_manual(values = c('firebrick', 'forestgreen', 'orange'))
+```
+:::
+
+```{webr}
+#| exercise: ex_8
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Stretch exercise 9: combining several scale options
+
+Copy the chart from exercise 2. Add **two** more things to the same `scale_x_continuous()`: `minor_breaks`, set to every single year from 1980 to 2000 (`1980:2000`), and `labels`, set to `c('Year 1', 'Year 2', 'Year 3')`.
+
+```{webr}
+#| exercise: ex_9
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+netherlands_df <- gapminder_df |> filter(country == 'Netherlands')
+```
+
+```{webr}
+#| exercise: ex_9
+netherlands_df |>
+  ggplot(aes(x = year, y = gdpPercap)) +
+  geom_line() +
+  scale_x_continuous(limits = c(1980, 2000),
+                      breaks = c(1980, 1990, 2000),
+                      minor_breaks = ______,
+                      labels = ______)
+```
+
+::: { .hint exercise="ex_9" }
+Four arguments to `scale_x_continuous()` in total now: `limits`, `breaks`, `minor_breaks`, and `labels`.
+:::
+
+::: { .solution exercise="ex_9" }
+#### Solution
+
+```{webr}
+#| exercise: ex_9
+#| solution: true
+netherlands_df |>
+  ggplot(aes(x = year, y = gdpPercap)) +
+  geom_line() +
+  scale_x_continuous(limits = c(1980, 2000),
+                      breaks = c(1980, 1990, 2000),
+                      minor_breaks = 1980:2000,
+                      labels = c('Year 1', 'Year 2', 'Year 3'))
+```
+:::
+
+```{webr}
+#| exercise: ex_9
+#| check: true
+gradethis::grade_this_code()
+```
+
+## Stretch exercise 10: a diverging colour scale
+
+Copy the `lifeExp`-filled chart from exercise 5 (without `scale_fill_viridis_c()`). This time use a **diverging** gradient scale: `'firebrick'` for `low`, `'white'` for `mid`, `'gold'` for `high`, with the midpoint set to `75`.
+
+```{webr}
+#| exercise: ex_10
+#| setup: true
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
+download.file(url, "gapminder_df.csv")
+gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
+sample_for_bar_chart <- gapminder_df |>
+  filter(year == 2007) |>
+  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+```
+
+```{webr}
+#| exercise: ex_10
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+  geom_col() +
+  ______
+```
+
+::: { .hint exercise="ex_10" }
+`scale_fill_gradient2(low = 'firebrick', mid = 'white', high = 'gold', midpoint = 75)`
+:::
+
+::: { .solution exercise="ex_10" }
+#### Solution
+
+```{webr}
+#| exercise: ex_10
+#| solution: true
+sample_for_bar_chart |>
+  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+  geom_col() +
+  scale_fill_gradient2(low = 'firebrick', mid = 'white', high = 'gold', midpoint = 75)
+```
+:::
+
+```{webr}
+#| exercise: ex_10
+#| check: true
+gradethis::grade_this_code()
+```

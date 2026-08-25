@@ -11,3 +11,4 @@ They're designed to be embedded directly into the course book via `<iframe>`, bu
 - [Data Analysis 2: filter, mutate, summarise, and grouping](data-analysis-2.html)
 - [Data Analysis 3: joins and tidying data](data-analysis-3.html)
 - [Data Visualisation 1: ggplot2 basics and chart types](data-visualisation-1.html)
+- [Data Visualisation 2: position and colour scales](data-visualisation-2.html)
