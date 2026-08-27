@@ -9,7 +9,7 @@ webr:
 {{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
 {{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
 
-These exercises practise position and colour scales from the *Data Visualisation 2* part of the course book, using the `gapminder_df` dataset.
+These exercises practise position and colour scales from the *Data Visualisation 2* part of the course book, using the Nobel Prize dataset.
 
 Like the ggplot2 exercises before these, they're checked by comparing your **code** to a model solution, so the feedback will point you to a specific part of your code to fix.
 
@@ -22,16 +22,23 @@ Starting from the chart below, add a `scale_x_continuous()` layer that limits th
 ```{webr}
 #| exercise: ex_1
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-netherlands_df <- gapminder_df |> filter(country == 'Netherlands')
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_by_year <- nobel_df |> count(award_year)
 ```
 
 ```{webr}
 #| exercise: ex_1
-netherlands_df |>
-  ggplot(aes(x = year, y = gdpPercap)) +
+nobel_by_year |>
+  ggplot(aes(x = award_year, y = n)) +
   geom_line() +
   ______
 ```
@@ -46,8 +53,8 @@ netherlands_df |>
 ```{webr}
 #| exercise: ex_1
 #| solution: true
-netherlands_df |>
-  ggplot(aes(x = year, y = gdpPercap)) +
+nobel_by_year |>
+  ggplot(aes(x = award_year, y = n)) +
   geom_line() +
   scale_x_continuous(limits = c(1980, 2000))
 ```
@@ -66,16 +73,23 @@ Copy the chart from exercise 1, and add `breaks` to the same `scale_x_continuous
 ```{webr}
 #| exercise: ex_2
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-netherlands_df <- gapminder_df |> filter(country == 'Netherlands')
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_by_year <- nobel_df |> count(award_year)
 ```
 
 ```{webr}
 #| exercise: ex_2
-netherlands_df |>
-  ggplot(aes(x = year, y = gdpPercap)) +
+nobel_by_year |>
+  ggplot(aes(x = award_year, y = n)) +
   geom_line() +
   scale_x_continuous(limits = c(1980, 2000),
                       breaks = ______)
@@ -91,8 +105,8 @@ netherlands_df |>
 ```{webr}
 #| exercise: ex_2
 #| solution: true
-netherlands_df |>
-  ggplot(aes(x = year, y = gdpPercap)) +
+nobel_by_year |>
+  ggplot(aes(x = award_year, y = n)) +
   geom_line() +
   scale_x_continuous(limits = c(1980, 2000),
                       breaks = c(1980, 1990, 2000))
@@ -107,28 +121,36 @@ gradethis::grade_this_code()
 
 ## Exercise 3: `reorder()`
 
-`americas_df` contains a handful of South American countries' data for 2002. Build a bar chart of `gdpPercap` by `country`, with the bars ordered from **highest to lowest**.
+`nobel_summary` has one row per prize category. Build a bar chart of `n` (the number of laureates) by `category`, with the bars ordered from **highest to lowest**.
 
 ```{webr}
 #| exercise: ex_3
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-americas_df <- gapminder_df |>
-  filter(country %in% c('Peru', 'Argentina', 'Brazil', 'Mexico', 'Chile', 'Colombia', 'Bolivia')) |>
-  filter(year == 2002)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_summary <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100)
 ```
 
 ```{webr}
 #| exercise: ex_3
-americas_df |>
-  ggplot(aes(x = reorder(______, ______), y = gdpPercap)) +
+nobel_summary |>
+  ggplot(aes(x = reorder(______, ______), y = n)) +
   ______
 ```
 
 ::: { .hint exercise="ex_3" }
-`reorder(country, desc(gdpPercap))` orders the bars from highest to lowest. The geom is `geom_col()`.
+`reorder(category, desc(n))` orders the bars from highest to lowest. The geom is `geom_col()`.
 :::
 
 ::: { .solution exercise="ex_3" }
@@ -137,8 +159,8 @@ americas_df |>
 ```{webr}
 #| exercise: ex_3
 #| solution: true
-americas_df |>
-  ggplot(aes(x = reorder(country, desc(gdpPercap)), y = gdpPercap)) +
+nobel_summary |>
+  ggplot(aes(x = reorder(category, desc(n)), y = n)) +
   geom_col()
 ```
 :::
@@ -156,18 +178,26 @@ Copy the chart from exercise 3, but this time order the bars so that after you a
 ```{webr}
 #| exercise: ex_4
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-americas_df <- gapminder_df |>
-  filter(country %in% c('Peru', 'Argentina', 'Brazil', 'Mexico', 'Chile', 'Colombia', 'Bolivia')) |>
-  filter(year == 2002)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_summary <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100)
 ```
 
 ```{webr}
 #| exercise: ex_4
-americas_df |>
-  ggplot(aes(x = reorder(______, ______), y = gdpPercap)) +
+nobel_summary |>
+  ggplot(aes(x = reorder(______, ______), y = n)) +
   geom_col() +
   ______
 ```
@@ -182,8 +212,8 @@ Without `desc()` this time - `coord_flip()` reverses the vertical order, so remo
 ```{webr}
 #| exercise: ex_4
 #| solution: true
-americas_df |>
-  ggplot(aes(x = reorder(country, gdpPercap), y = gdpPercap)) +
+nobel_summary |>
+  ggplot(aes(x = reorder(category, n), y = n)) +
   geom_col() +
   coord_flip()
 ```
@@ -197,29 +227,37 @@ gradethis::grade_this_code()
 
 ## Exercise 5: a continuous colour scale
 
-Using `sample_for_bar_chart`, build a bar chart with `country` on the x axis, `gdpPercap` on the y axis, and `lifeExp` mapped to `fill`. Then add `scale_fill_viridis_c()` as an extra layer.
+Using `nobel_summary`, build a bar chart with `category` on the x axis, `n` on the y axis, and `pct_female` mapped to `fill`. Then add `scale_fill_viridis_c()` as an extra layer.
 
 ```{webr}
 #| exercise: ex_5
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-sample_for_bar_chart <- gapminder_df |>
-  filter(year == 2007) |>
-  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_summary <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100)
 ```
 
 ```{webr}
 #| exercise: ex_5
-sample_for_bar_chart |>
+nobel_summary |>
   ggplot(aes(x = ______, y = ______, fill = ______)) +
   geom_col() +
   ______
 ```
 
 ::: { .hint exercise="ex_5" }
-`lifeExp` is numeric, so it needs a continuous scale: `scale_fill_viridis_c()`.
+`pct_female` is numeric, so it needs a continuous scale: `scale_fill_viridis_c()`.
 :::
 
 ::: { .solution exercise="ex_5" }
@@ -228,8 +266,8 @@ sample_for_bar_chart |>
 ```{webr}
 #| exercise: ex_5
 #| solution: true
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = pct_female)) +
   geom_col() +
   scale_fill_viridis_c()
 ```
@@ -243,29 +281,37 @@ gradethis::grade_this_code()
 
 ## Exercise 6: a discrete colour palette
 
-Copy the chart from exercise 5, but map `continent` to `fill` instead, and use `scale_fill_brewer()` with the palette `'Set2'`.
+Copy the chart from exercise 5, but map `category` to `fill` as well (instead of `pct_female`), and use `scale_fill_brewer()` with the palette `'Set2'`.
 
 ```{webr}
 #| exercise: ex_6
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-sample_for_bar_chart <- gapminder_df |>
-  filter(year == 2007) |>
-  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_summary <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100)
 ```
 
 ```{webr}
 #| exercise: ex_6
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = ______)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = ______)) +
   geom_col() +
   ______
 ```
 
 ::: { .hint exercise="ex_6" }
-`scale_fill_brewer(palette = 'Set2')`. `continent` is categorical, so it gets a discrete scale.
+`scale_fill_brewer(palette = 'Set2')`. `category` is categorical, so it gets a discrete scale.
 :::
 
 ::: { .solution exercise="ex_6" }
@@ -274,8 +320,8 @@ sample_for_bar_chart |>
 ```{webr}
 #| exercise: ex_6
 #| solution: true
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = continent)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = category)) +
   geom_col() +
   scale_fill_brewer(palette = 'Set2')
 ```
@@ -289,23 +335,31 @@ gradethis::grade_this_code()
 
 ## Exercise 7: a custom gradient
 
-Copy the `lifeExp`-filled chart from exercise 5 again (without `scale_fill_viridis_c()` this time), and instead add your own two-colour gradient scale, running from `'firebrick'` (low) to `'gold'` (high).
+Copy the `pct_female`-filled chart from exercise 5 again (without `scale_fill_viridis_c()` this time), and instead add your own two-colour gradient scale, running from `'firebrick'` (low) to `'gold'` (high).
 
 ```{webr}
 #| exercise: ex_7
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-sample_for_bar_chart <- gapminder_df |>
-  filter(year == 2007) |>
-  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_summary <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100)
 ```
 
 ```{webr}
 #| exercise: ex_7
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = pct_female)) +
   geom_col() +
   ______
 ```
@@ -320,8 +374,8 @@ sample_for_bar_chart |>
 ```{webr}
 #| exercise: ex_7
 #| solution: true
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = pct_female)) +
   geom_col() +
   scale_fill_gradient(low = 'firebrick', high = 'gold')
 ```
@@ -335,29 +389,37 @@ gradethis::grade_this_code()
 
 ## Exercise 8: `scale_fill_manual()`
 
-Copy the `continent`-filled chart from exercise 6 (without `scale_fill_brewer()` this time). South America, Europe, and Asia are the only continents in this data. Set their fill colours manually and in that order, to `'firebrick'`, `'forestgreen'`, and `'orange'`.
+Copy the `category`-filled chart from exercise 6 (without `scale_fill_brewer()` this time). There are six categories, in alphabetical order: Chemistry, Economic Sciences, Literature, Peace, Physics, and Physiology or Medicine. Set their fill colours manually and in that order, to `'firebrick'`, `'forestgreen'`, `'orange'`, `'steelblue'`, `'goldenrod'`, and `'orchid'`.
 
 ```{webr}
 #| exercise: ex_8
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-sample_for_bar_chart <- gapminder_df |>
-  filter(year == 2007) |>
-  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_summary <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100)
 ```
 
 ```{webr}
 #| exercise: ex_8
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = continent)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = category)) +
   geom_col() +
   ______
 ```
 
 ::: { .hint exercise="ex_8" }
-`scale_fill_manual(values = c('firebrick', 'forestgreen', 'orange'))`
+`scale_fill_manual(values = c('firebrick', 'forestgreen', 'orange', 'steelblue', 'goldenrod', 'orchid'))`
 :::
 
 ::: { .solution exercise="ex_8" }
@@ -366,10 +428,10 @@ sample_for_bar_chart |>
 ```{webr}
 #| exercise: ex_8
 #| solution: true
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = continent)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = category)) +
   geom_col() +
-  scale_fill_manual(values = c('firebrick', 'forestgreen', 'orange'))
+  scale_fill_manual(values = c('firebrick', 'forestgreen', 'orange', 'steelblue', 'goldenrod', 'orchid'))
 ```
 :::
 
@@ -386,16 +448,23 @@ Copy the chart from exercise 2. Add **two** more things to the same `scale_x_con
 ```{webr}
 #| exercise: ex_9
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-netherlands_df <- gapminder_df |> filter(country == 'Netherlands')
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_by_year <- nobel_df |> count(award_year)
 ```
 
 ```{webr}
 #| exercise: ex_9
-netherlands_df |>
-  ggplot(aes(x = year, y = gdpPercap)) +
+nobel_by_year |>
+  ggplot(aes(x = award_year, y = n)) +
   geom_line() +
   scale_x_continuous(limits = c(1980, 2000),
                       breaks = c(1980, 1990, 2000),
@@ -413,8 +482,8 @@ Four arguments to `scale_x_continuous()` in total now: `limits`, `breaks`, `mino
 ```{webr}
 #| exercise: ex_9
 #| solution: true
-netherlands_df |>
-  ggplot(aes(x = year, y = gdpPercap)) +
+nobel_by_year |>
+  ggplot(aes(x = award_year, y = n)) +
   geom_line() +
   scale_x_continuous(limits = c(1980, 2000),
                       breaks = c(1980, 1990, 2000),
@@ -431,29 +500,37 @@ gradethis::grade_this_code()
 
 ## Stretch exercise 10: a diverging colour scale
 
-Copy the `lifeExp`-filled chart from exercise 5 (without `scale_fill_viridis_c()`). This time use a **diverging** gradient scale: `'firebrick'` for `low`, `'white'` for `mid`, `'gold'` for `high`, with the midpoint set to `75`.
+Copy the `pct_female`-filled chart from exercise 5 (without `scale_fill_viridis_c()`). This time use a **diverging** gradient scale: `'firebrick'` for `low`, `'white'` for `mid`, `'gold'` for `high`, with the midpoint set to `10`.
 
 ```{webr}
 #| exercise: ex_10
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-sample_for_bar_chart <- gapminder_df |>
-  filter(year == 2007) |>
-  filter(country %in% c('Netherlands', 'France', 'Germany', 'Mexico', 'Chile', 'Colombia', 'Bolivia', 'Japan', 'China'))
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_summary <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100)
 ```
 
 ```{webr}
 #| exercise: ex_10
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = pct_female)) +
   geom_col() +
   ______
 ```
 
 ::: { .hint exercise="ex_10" }
-`scale_fill_gradient2(low = 'firebrick', mid = 'white', high = 'gold', midpoint = 75)`
+`scale_fill_gradient2(low = 'firebrick', mid = 'white', high = 'gold', midpoint = 10)`
 :::
 
 ::: { .solution exercise="ex_10" }
@@ -462,10 +539,10 @@ sample_for_bar_chart |>
 ```{webr}
 #| exercise: ex_10
 #| solution: true
-sample_for_bar_chart |>
-  ggplot(aes(x = country, y = gdpPercap, fill = lifeExp)) +
+nobel_summary |>
+  ggplot(aes(x = category, y = n, fill = pct_female)) +
   geom_col() +
-  scale_fill_gradient2(low = 'firebrick', mid = 'white', high = 'gold', midpoint = 75)
+  scale_fill_gradient2(low = 'firebrick', mid = 'white', high = 'gold', midpoint = 10)
 ```
 :::
 

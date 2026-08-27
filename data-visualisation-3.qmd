@@ -3,13 +3,13 @@ title: "Data Visualisation 3: Practice Exercises"
 subtitle: "titles, themes, and annotations"
 format: live-html
 webr:
-  packages: ['dplyr', 'readr', 'ggplot2']
+  packages: ['dplyr', 'readr', 'ggplot2', 'tidyr']
 ---
 
 {{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
 {{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
 
-These exercises practise titles, themes, and annotations from the *Data Visualisation 3* part of the course book, using `gapminder_df`.
+These exercises practise titles, themes, and annotations from the *Data Visualisation 3* part of the course book, using the Nobel Prize dataset.
 
 Like the other ggplot2 exercises, these are checked by comparing your **code** to a model solution, so the feedback will point you to a specific part of your code to fix.
 
@@ -17,27 +17,40 @@ The last two exercises are a bit more of a stretch - come back to them once you'
 
 ## Exercise 1: adding a title
 
-Starting from the chart below, add a title reading `"GDP and Life\nExpectancy"` (the `\n` starts a new line).
+Starting from the chart below, add a title reading `"Age and Gender\nat the Nobel Prize"` (the `\n` starts a new line).
 
 ```{webr}
 #| exercise: ex_1
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
 ```
 
 ```{webr}
 #| exercise: ex_1
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
   ______
 ```
 
 ::: { .hint exercise="ex_1" }
-`labs(title = "GDP and Life\nExpectancy")`
+`labs(title = "Age and Gender\nat the Nobel Prize")`
 :::
 
 ::: { .solution exercise="ex_1" }
@@ -47,9 +60,9 @@ df |>
 #| exercise: ex_1
 #| solution: true
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
-  labs(title = "GDP and Life\nExpectancy")
+  labs(title = "Age and Gender\nat the Nobel Prize")
 ```
 :::
 
@@ -61,23 +74,36 @@ gradethis::grade_this_code()
 
 ## Exercise 2: a subtitle, and removing an axis label
 
-Copy the chart from exercise 1. Add a subtitle reading `"2007"`, and remove the x axis label entirely (set it to `NULL`).
+Copy the chart from exercise 1. Add a subtitle reading `"1901-2024"`, and remove the x axis label entirely (set it to `NULL`).
 
 ```{webr}
 #| exercise: ex_2
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
 ```
 
 ```{webr}
 #| exercise: ex_2
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
-  labs(title = "GDP and Life\nExpectancy",
+  labs(title = "Age and Gender\nat the Nobel Prize",
        subtitle = ______,
        x = ______)
 ```
@@ -93,10 +119,10 @@ Both `subtitle` and `x` go inside the same `labs()` call as `title`.
 #| exercise: ex_2
 #| solution: true
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
-  labs(title = "GDP and Life\nExpectancy",
-       subtitle = "2007",
+  labs(title = "Age and Gender\nat the Nobel Prize",
+       subtitle = "1901-2024",
        x = NULL)
 ```
 :::
@@ -114,16 +140,29 @@ Copy the chart from exercise 1, and add the preset theme `theme_light()`.
 ```{webr}
 #| exercise: ex_3
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
 ```
 
 ```{webr}
 #| exercise: ex_3
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
   ______
 ```
@@ -139,7 +178,7 @@ Preset themes are added just like any other layer: `+ theme_light()`.
 #| exercise: ex_3
 #| solution: true
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
   theme_light()
 ```
@@ -153,21 +192,34 @@ gradethis::grade_this_code()
 
 ## Exercise 4: rotating axis text
 
-`americas_df` is a bar chart of `gdpPercap` by `country`. The country names overlap. Add a `theme()` layer that rotates the x axis text (`axis.text.x`) by `45` degrees, with `hjust` and `vjust` both set to `1`.
+`df` (from exercise 1's setup) can also be drawn as a bar chart of `n` by `category`. Some of these category names ("Physiology or Medicine", "Economic Sciences") are too long to sit comfortably on the x axis. Add a `theme()` layer that rotates the x axis text (`axis.text.x`) by `45` degrees, with `hjust` and `vjust` both set to `1`.
 
 ```{webr}
 #| exercise: ex_4
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-americas_df <- gapminder_df |> filter(continent == 'Americas' & year == 2007)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
 ```
 
 ```{webr}
 #| exercise: ex_4
-americas_df |>
-  ggplot(aes(x = country, y = gdpPercap)) +
+df |>
+  ggplot(aes(x = category, y = n)) +
   geom_col() +
   theme(axis.text.x = element_text(angle = ______, hjust = ______, vjust = ______))
 ```
@@ -182,8 +234,8 @@ All three values mentioned in the instructions go inside the same `element_text(
 ```{webr}
 #| exercise: ex_4
 #| solution: true
-americas_df |>
-  ggplot(aes(x = country, y = gdpPercap)) +
+df |>
+  ggplot(aes(x = category, y = n)) +
   geom_col() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 ```
@@ -197,28 +249,41 @@ gradethis::grade_this_code()
 
 ## Exercise 5: labelling every point
 
-Copy the chart from exercise 1, and add a `geom_text()` layer that labels every point with its `country`. (You'll see why this is a bad idea for a chart this crowded - that's the point of the next exercise!)
+Copy the chart from exercise 1, and add a `geom_text()` layer that labels every point with its `category`.
 
 ```{webr}
 #| exercise: ex_5
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
 ```
 
 ```{webr}
 #| exercise: ex_5
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
   ______ +
-  labs(title = "GDP and Life\nExpectancy")
+  labs(title = "Age and Gender\nat the Nobel Prize")
 ```
 
 ::: { .hint exercise="ex_5" }
-`geom_text(aes(label = country), size = 3)`
+`geom_text(aes(label = category), size = 3)`
 :::
 
 ::: { .solution exercise="ex_5" }
@@ -228,10 +293,10 @@ df |>
 #| exercise: ex_5
 #| solution: true
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
-  geom_text(aes(label = country), size = 3) +
-  labs(title = "GDP and Life\nExpectancy")
+  geom_text(aes(label = category), size = 3) +
+  labs(title = "Age and Gender\nat the Nobel Prize")
 ```
 :::
 
@@ -243,29 +308,43 @@ gradethis::grade_this_code()
 
 ## Exercise 6: labelling a chosen few
 
-`df_text` is `df` filtered to just Ireland and Iceland. Copy the chart from exercise 1, and add a `geom_text()` layer that labels **only** these two countries. You'll need to set `data = df_text` inside `geom_text()`, as well as the `label` aesthetic.
+`df_text` is `df` filtered to just Peace and Physics. Copy the chart from exercise 1, and add a `geom_text()` layer that labels **only** these two categories. You'll need to set `data = df_text` inside `geom_text()`, as well as the `label` aesthetic.
 
 ```{webr}
 #| exercise: ex_6
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
-df_text <- df |> filter(country %in% c('Ireland', 'Iceland'))
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
+
+df_text <- df |> filter(category %in% c('Peace', 'Physics'))
 ```
 
 ```{webr}
 #| exercise: ex_6
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
   geom_text(data = ______, aes(label = ______), size = 4) +
-  labs(title = "GDP and Life\nExpectancy")
+  labs(title = "Age and Gender\nat the Nobel Prize")
 ```
 
 ::: { .hint exercise="ex_6" }
-`data = df_text`, and `label = country`.
+`data = df_text`, and `label = category`.
 :::
 
 ::: { .solution exercise="ex_6" }
@@ -275,10 +354,10 @@ df |>
 #| exercise: ex_6
 #| solution: true
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
-  geom_text(data = df_text, aes(label = country), size = 4) +
-  labs(title = "GDP and Life\nExpectancy")
+  geom_text(data = df_text, aes(label = category), size = 4) +
+  labs(title = "Age and Gender\nat the Nobel Prize")
 ```
 :::
 
@@ -290,29 +369,42 @@ gradethis::grade_this_code()
 
 ## Exercise 7: `annotate()` with text and a curve
 
-Copy the chart from exercise 1. Add an `annotate()` layer with `geom = 'text'`, at `x = 76, y = 45000`, labelled `"Netherlands"`. Then add a second `annotate()` layer with `geom = 'curve'`, running from `x = 76, y = 44000` to `xend = 79.76, yend = 36797`, with an `arrow = arrow(type = 'closed', length = unit(2, 'mm'))`.
+Copy the chart from exercise 1. Add an `annotate()` layer with `geom = 'text'`, at `x = 56, y = 19`, labelled `"Peace"`. Then add a second `annotate()` layer with `geom = 'curve'`, running from `x = 56, y = 18.3` to `xend = 60.8, yend = 17.1`, with an `arrow = arrow(type = 'closed', length = unit(2, 'mm'))`.
 
 ```{webr}
 #| exercise: ex_7
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
 ```
 
 ```{webr}
 #| exercise: ex_7
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
-  annotate(geom = ______, x = 76, y = 45000, label = ______) +
-  annotate(geom = ______, x = 76, y = 44000, xend = ______, yend = ______,
+  annotate(geom = ______, x = 56, y = 19, label = ______) +
+  annotate(geom = ______, x = 56, y = 18.3, xend = ______, yend = ______,
            arrow = arrow(type = 'closed', length = unit(2, 'mm')))
 ```
 
 ::: { .hint exercise="ex_7" }
-The first `annotate()` needs `geom = 'text'` and `label = "Netherlands"`. The second needs `geom = 'curve'`, `xend = 79.76`, and `yend = 36797`.
+The first `annotate()` needs `geom = 'text'` and `label = "Peace"`. The second needs `geom = 'curve'`, `xend = 60.8`, and `yend = 17.1`.
 :::
 
 ::: { .solution exercise="ex_7" }
@@ -322,10 +414,10 @@ The first `annotate()` needs `geom = 'text'` and `label = "Netherlands"`. The se
 #| exercise: ex_7
 #| solution: true
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
-  annotate(geom = 'text', x = 76, y = 45000, label = "Netherlands") +
-  annotate(geom = 'curve', x = 76, y = 44000, xend = 79.76, yend = 36797,
+  annotate(geom = 'text', x = 56, y = 19, label = "Peace") +
+  annotate(geom = 'curve', x = 56, y = 18.3, xend = 60.8, yend = 17.1,
            arrow = arrow(type = 'closed', length = unit(2, 'mm')))
 ```
 :::
@@ -338,27 +430,36 @@ gradethis::grade_this_code()
 
 ## Exercise 8: `annotate()` with a rectangle
 
-`western_europe_df` is a line chart of `gdpPercap` over time for five countries. Add an `annotate()` layer with `geom = 'rect'`, covering `xmin = 1960` to `xmax = 1980`, from `ymin = 0` to `ymax = Inf`, with `alpha = .5`.
+`nobel_by_year` is a line chart of the number of laureates (`n`) awarded per year. Add an `annotate()` layer with `geom = 'rect'`, covering `xmin = 1939` to `xmax = 1946`, from `ymin = 0` to `ymax = Inf`, with `alpha = .5`. (This is the gap in the early 1940s when no prizes were awarded, because of the Second World War.)
 
 ```{webr}
 #| exercise: ex_8
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-western_europe_df <- gapminder_df |> filter(country %in% c('Netherlands', 'France', 'Ireland', 'Germany', 'Spain'))
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id")
+
+nobel_by_year <- tibble(award_year = 1901:2024) |>
+  left_join(nobel_df |> count(award_year), by = "award_year") |>
+  mutate(n = replace_na(n, 0))
 ```
 
 ```{webr}
 #| exercise: ex_8
-western_europe_df |>
-  ggplot(aes(x = year, y = gdpPercap, color = country)) +
+nobel_by_year |>
+  ggplot(aes(x = award_year, y = n)) +
   geom_line() +
   annotate(geom = ______, xmin = ______, xmax = ______, ymin = ______, ymax = ______, alpha = .5)
 ```
 
 ::: { .hint exercise="ex_8" }
-`annotate(geom = 'rect', xmin = 1960, xmax = 1980, ymin = 0, ymax = Inf, alpha = .5)`
+`annotate(geom = 'rect', xmin = 1939, xmax = 1946, ymin = 0, ymax = Inf, alpha = .5)`
 :::
 
 ::: { .solution exercise="ex_8" }
@@ -367,10 +468,10 @@ western_europe_df |>
 ```{webr}
 #| exercise: ex_8
 #| solution: true
-western_europe_df |>
-  ggplot(aes(x = year, y = gdpPercap, color = country)) +
+nobel_by_year |>
+  ggplot(aes(x = award_year, y = n)) +
   geom_line() +
-  annotate(geom = 'rect', xmin = 1960, xmax = 1980, ymin = 0, ymax = Inf, alpha = .5)
+  annotate(geom = 'rect', xmin = 1939, xmax = 1946, ymin = 0, ymax = Inf, alpha = .5)
 ```
 :::
 
@@ -382,31 +483,45 @@ gradethis::grade_this_code()
 
 ## Stretch exercise 9: pasted-together labels
 
-`df_text2` is `df` filtered to Ireland and Iceland, with a new column `country_gdp`, pasting together the country name, `" ("`, the rounded `gdpPercap`, and `")"` (with no separator between them). Add a `geom_text()` layer using `df_text2`, labelling each point with `country_gdp`, coloured fixed black (not mapped).
+`df_text2` is `df` filtered to Peace and Literature, with a new column `category_pct`, pasting together the category name, `" ("`, the rounded `pct_female`, and `"%)"` (with no separator between them). Add a `geom_text()` layer using `df_text2`, labelling each point with `category_pct`, coloured fixed black (not mapped).
 
 ```{webr}
 #| exercise: ex_9
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
+
 df_text2 <- df |>
-  filter(country %in% c('Ireland', 'Iceland')) |>
-  mutate(country_gdp = paste(country, " (", round(gdpPercap), ")", sep = ''))
+  filter(category %in% c('Peace', 'Literature')) |>
+  mutate(category_pct = paste(category, " (", round(pct_female), "%)", sep = ''))
 ```
 
 ```{webr}
 #| exercise: ex_9
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
   geom_text(data = ______, aes(label = ______), size = 4, color = ______) +
-  labs(title = "GDP and Life\nExpectancy")
+  labs(title = "Age and Gender\nat the Nobel Prize")
 ```
 
 ::: { .hint exercise="ex_9" }
-`data = df_text2`, `label = country_gdp`, and `color = "black"` (fixed, so outside `aes()`).
+`data = df_text2`, `label = category_pct`, and `color = "black"` (fixed, so outside `aes()`).
 :::
 
 ::: { .solution exercise="ex_9" }
@@ -416,10 +531,10 @@ df |>
 #| exercise: ex_9
 #| solution: true
 df |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions, color = continent)) +
+  ggplot(aes(x = avg_age, y = pct_female, size = n, color = category)) +
   geom_point() +
-  geom_text(data = df_text2, aes(label = country_gdp), size = 4, color = "black") +
-  labs(title = "GDP and Life\nExpectancy")
+  geom_text(data = df_text2, aes(label = category_pct), size = 4, color = "black") +
+  labs(title = "Age and Gender\nat the Nobel Prize")
 ```
 :::
 
@@ -431,29 +546,42 @@ gradethis::grade_this_code()
 
 ## Stretch exercise 10: highlighting with colour
 
-`df_europe` is `df` filtered to Europe. `df_highlight` is `df_europe` filtered to just Ireland, the Netherlands, and France. Build a scatterplot of `df_europe` (`x = lifeExp, y = gdpPercap, size = pop_millions`), with **all** points coloured fixed `'gray50'` and `alpha = .8`. Then add a **second** `geom_point()` layer using `df_highlight`, coloured fixed `'red'`, to make those three countries stand out.
+`df_highlight` is `df` filtered to just Peace, Literature, and Economic Sciences. Build a scatterplot of `df` (`x = avg_age, y = pct_female, size = n`), with **all** points coloured fixed `'gray50'` and `alpha = .8`. Then add a **second** `geom_point()` layer using `df_highlight`, coloured fixed `'red'`, to make those three categories stand out.
 
 ```{webr}
 #| exercise: ex_10
 #| setup: true
-url <- "https://raw.githubusercontent.com/jennybc/gapminder/refs/heads/main/data-raw/04_gap-merged.tsv"
-download.file(url, "gapminder_df.csv")
-gapminder_df <- read_tsv("gapminder_df.csv", show_col_types = FALSE) |> filter(continent != 'FSU')
-df <- gapminder_df |> filter(year == 2007) |> mutate(pop_millions = pop/1000000)
-df_europe <- df |> filter(continent == 'Europe')
-df_highlight <- df_europe |> filter(country %in% c('Ireland', 'Netherlands', 'France'))
+url1 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/laureates_df.csv"
+download.file(url1, "laureates_df.csv")
+laureates_df <- read_csv("laureates_df.csv", show_col_types = FALSE)
+
+url2 <- "https://raw.githubusercontent.com/yann-ryan/infovis_data/main/nobel/prize_df.csv"
+download.file(url2, "prize_df.csv")
+prize_df <- read_csv("prize_df.csv", show_col_types = FALSE)
+
+nobel_df <- laureates_df |> left_join(prize_df, by = "prize_id") |>
+  mutate(birth_year = as.numeric(substr(birth_date, 1, 4)),
+         age_at_award = award_year - birth_year)
+
+df <- nobel_df |>
+  group_by(category) |>
+  summarise(n = n(),
+            pct_female = mean(gender == "female", na.rm = TRUE) * 100,
+            avg_age = mean(age_at_award, na.rm = TRUE))
+
+df_highlight <- df |> filter(category %in% c('Peace', 'Literature', 'Economic Sciences'))
 ```
 
 ```{webr}
 #| exercise: ex_10
-df_europe |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions)) +
+df |>
+  ggplot(aes(x = avg_age, y = pct_female, size = n)) +
   geom_point(color = ______, alpha = .8) +
   geom_point(data = ______, color = ______)
 ```
 
 ::: { .hint exercise="ex_10" }
-The first `geom_point()` uses `df_europe` (from the pipe) and `color = 'gray50'`. The second needs `data = df_highlight` and `color = 'red'`.
+The first `geom_point()` uses `df` (from the pipe) and `color = 'gray50'`. The second needs `data = df_highlight` and `color = 'red'`.
 :::
 
 ::: { .solution exercise="ex_10" }
@@ -462,8 +590,8 @@ The first `geom_point()` uses `df_europe` (from the pipe) and `color = 'gray50'`
 ```{webr}
 #| exercise: ex_10
 #| solution: true
-df_europe |>
-  ggplot(aes(x = lifeExp, y = gdpPercap, size = pop_millions)) +
+df |>
+  ggplot(aes(x = avg_age, y = pct_female, size = n)) +
   geom_point(color = 'gray50', alpha = .8) +
   geom_point(data = df_highlight, color = 'red')
 ```
