@@ -1,0 +1,33 @@
+<script>
+// When embedded in the course book, tell the parent page how tall this page
+// is, so it can resize the iframe and only the book page scrolls. Uses
+// postMessage, which works even when the book is served from a different
+// origin (e.g. a local preview).
+(function () {
+  if (window.parent === window) return;
+
+  var last = 0;
+  function report() {
+    var height = Math.max(
+      document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0
+    );
+    if (height && height !== last) {
+      last = height;
+      window.parent.postMessage({ type: "exercise-height", height: height }, "*");
+    }
+  }
+
+  // Exercise content (webR loading, gradethis feedback appearing/collapsing)
+  // changes height after load, so keep reporting rather than once.
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(report);
+    ro.observe(document.documentElement);
+    if (document.body) ro.observe(document.body);
+  } else {
+    setInterval(report, 500);
+  }
+  window.addEventListener("load", report);
+  report();
+})();
+</script>
