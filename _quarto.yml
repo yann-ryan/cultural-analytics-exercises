@@ -6,7 +6,9 @@ format:
   live-html:
     theme: cosmo
     toc: false
-    include-after-body: _includes/report-height.html
+    include-after-body:
+      - _includes/report-height.html
+      - _includes/save-answers.html
 
 engine: knitr
 

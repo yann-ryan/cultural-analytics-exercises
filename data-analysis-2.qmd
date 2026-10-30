@@ -4,6 +4,8 @@ subtitle: "filter, mutate, summarise, and grouping"
 format: live-html
 webr:
   packages: ['dplyr', 'readr']
+  cell-options:
+    persist: true
 ---
 
 {{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
