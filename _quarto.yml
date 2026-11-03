@@ -9,6 +9,7 @@ format:
     include-after-body:
       - _includes/report-height.html
       - _includes/save-answers.html
+      - _includes/hide-solutions.html
 
 engine: knitr
 
