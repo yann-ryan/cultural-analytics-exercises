@@ -11,7 +11,7 @@ webr:
 {{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
 {{< include ./_extensions/r-wasm/live/_gradethis.qmd >}}
 
-These exercises let you practise the verbs from the *Data Analysis 2* part of the course book: `filter()`, `mutate()`, `summarise()`, and `group_by()`. They all use the same `titanic_df` dataset from the course.
+These exercises let you practise the verbs from the *Data Analysis 2* part of the course book: `filter()`, `mutate()`, `summarise()`, and `group_by()`. They all use the same `titanic_df` dataset from the course, but ask different questions from the examples in the book, so you'll need to adapt what you've learned.
 
 Write your code in the box, then click **Run Code** to see the result and get feedback.
 
@@ -19,7 +19,7 @@ The last two exercises are a bit more of a stretch - come back to them once you'
 
 ## Exercise 1: `filter()` with one condition
 
-Filter `titanic_df` to keep only the **female** passengers.
+Filter `titanic_df` to keep only the passengers who **did not survive**. The `survived` column is `1` for passengers who survived and `0` for those who didn't.
 
 ```{webr}
 #| exercise: ex_1
@@ -35,7 +35,7 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_1" }
-Use `filter()` with `sex == 'female'`. Remember filter needs a double equals sign to check equality.
+Use `filter()` on the `survived` column. To check whether two things are equal, use a double equals sign: `==`.
 :::
 
 ::: { .solution exercise="ex_1" }
@@ -44,7 +44,7 @@ Use `filter()` with `sex == 'female'`. Remember filter needs a double equals sig
 ```{webr}
 #| exercise: ex_1
 #| solution: true
-titanic_df |> filter(sex == 'female')
+titanic_df |> filter(survived == 0)
 ```
 :::
 
@@ -52,14 +52,14 @@ titanic_df |> filter(sex == 'female')
 #| exercise: ex_1
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "That's it - just the female passengers.")
-  fail("Not quite. Check you're using a double equals sign (==), and the exact text 'female'.")
+  pass_if_equal(explanation = "That's it - the 809 passengers who did not survive.")
+  fail("Not quite. Check you're using a double equals sign (==) and the right number for passengers who didn't survive.")
 })
 ```
 
 ## Exercise 2: `filter()` with a numeric condition
 
-Filter `titanic_df` to keep only passengers **under 18 years old**.
+Filter `titanic_df` to keep only passengers who were **60 or older**.
 
 ```{webr}
 #| exercise: ex_2
@@ -75,7 +75,7 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_2" }
-Use the `<` comparison on the `age` column.
+"60 or older" includes 60 itself. `>` means "greater than"; `>=` means "greater than or equal to".
 :::
 
 ::: { .solution exercise="ex_2" }
@@ -84,7 +84,7 @@ Use the `<` comparison on the `age` column.
 ```{webr}
 #| exercise: ex_2
 #| solution: true
-titanic_df |> filter(age < 18)
+titanic_df |> filter(age >= 60)
 ```
 :::
 
@@ -92,14 +92,14 @@ titanic_df |> filter(age < 18)
 #| exercise: ex_2
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "Correct - everyone under 18.")
-  fail("Not quite. Double check the comparison and the column you're using.")
+  pass_if_equal(explanation = "Correct - the 40 passengers aged 60 or over.")
+  fail("Not quite. Make sure passengers who were exactly 60 are included.")
 })
 ```
 
 ## Exercise 3: combining conditions with `&`
 
-Filter `titanic_df` to keep only passengers who were in **first class AND survived**.
+Filter `titanic_df` to keep only **male** passengers who embarked at **Queenstown** (`embarked` is `'Q'`).
 
 ```{webr}
 #| exercise: ex_3
@@ -115,7 +115,7 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_3" }
-`pclass == 1` for first class, `survived == 1` for survivors, joined with `&`.
+You need two conditions that must both be true: one on `sex`, one on `embarked`. Join them with `&`.
 :::
 
 ::: { .solution exercise="ex_3" }
@@ -124,7 +124,7 @@ titanic_df |> ______
 ```{webr}
 #| exercise: ex_3
 #| solution: true
-titanic_df |> filter(pclass == 1 & survived == 1)
+titanic_df |> filter(sex == 'male' & embarked == 'Q')
 ```
 :::
 
@@ -132,14 +132,14 @@ titanic_df |> filter(pclass == 1 & survived == 1)
 #| exercise: ex_3
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "That's it - first class survivors.")
-  fail("Not quite. You need both conditions to be true at once - check you're using & and the right values.")
+  pass_if_equal(explanation = "That's it - men who boarded at Queenstown.")
+  fail("Not quite. Both conditions must be true at once - check you're using & and that the text values are in quotes.")
 })
 ```
 
 ## Exercise 4: combining conditions with `|`
 
-Filter `titanic_df` to keep passengers where **either** the fare was more than 100, **or** they were in first class.
+Two columns record family on board: `sibsp` (number of siblings or spouses) and `parch` (number of parents or children). Filter `titanic_df` to keep passengers travelling with **any** family: those with at least one sibling or spouse, **or** at least one parent or child.
 
 ```{webr}
 #| exercise: ex_4
@@ -155,7 +155,7 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_4" }
-Use `|` instead of `&` to mean "either condition can be true".
+"At least one" means greater than 0. Use `|` so that a row is kept if either condition is true.
 :::
 
 ::: { .solution exercise="ex_4" }
@@ -164,7 +164,7 @@ Use `|` instead of `&` to mean "either condition can be true".
 ```{webr}
 #| exercise: ex_4
 #| solution: true
-titanic_df |> filter(fare > 100 | pclass == 1)
+titanic_df |> filter(sibsp > 0 | parch > 0)
 ```
 :::
 
@@ -172,14 +172,14 @@ titanic_df |> filter(fare > 100 | pclass == 1)
 #| exercise: ex_4
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "Correct - either condition qualifies a row.")
+  pass_if_equal(explanation = "Correct - the 519 passengers travelling with family.")
   fail("Not quite. Remember | means 'at least one of these is true', which is different to &.")
 })
 ```
 
 ## Exercise 5: `%in%`
 
-Filter `titanic_df` to keep only passengers who embarked at **Cherbourg (C) or Queenstown (Q)**.
+Use `%in%` to filter `titanic_df` to keep only passengers in **second or third class** (`pclass` is 2 or 3).
 
 ```{webr}
 #| exercise: ex_5
@@ -195,7 +195,7 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_5" }
-Use `embarked %in% c('C', 'Q')`.
+`%in%` checks whether a value is in a list you give it, like `c(2, 3)`. Because these are numbers, they don't need quotation marks.
 :::
 
 ::: { .solution exercise="ex_5" }
@@ -204,7 +204,7 @@ Use `embarked %in% c('C', 'Q')`.
 ```{webr}
 #| exercise: ex_5
 #| solution: true
-titanic_df |> filter(embarked %in% c('C', 'Q'))
+titanic_df |> filter(pclass %in% c(2, 3))
 ```
 :::
 
@@ -212,14 +212,14 @@ titanic_df |> filter(embarked %in% c('C', 'Q'))
 #| exercise: ex_5
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "That's it - Cherbourg and Queenstown passengers.")
-  fail("Not quite. Check the two letter codes and that you're using %in% with c().")
+  pass_if_equal(explanation = "That's it - second and third class passengers.")
+  fail("Not quite. Check you're using %in% on the pclass column, with both class numbers.")
 })
 ```
 
 ## Exercise 6: `mutate()`
 
-Create a new column called `price_today`, equal to `fare` multiplied by `78.17` (an approximate inflation adjustment).
+Create a new column called `family_size`: the number of people in each passenger's family group on board. Add `sibsp` and `parch` together, then add 1 for the passenger themselves.
 
 ```{webr}
 #| exercise: ex_6
@@ -235,7 +235,7 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_6" }
-`mutate(price_today = fare * 78.17)`
+Inside `mutate()`, give the new column name, then `=`, then the calculation. You can add columns together with `+`.
 :::
 
 ::: { .solution exercise="ex_6" }
@@ -244,7 +244,7 @@ titanic_df |> ______
 ```{webr}
 #| exercise: ex_6
 #| solution: true
-titanic_df |> mutate(price_today = fare * 78.17)
+titanic_df |> mutate(family_size = sibsp + parch + 1)
 ```
 :::
 
@@ -252,14 +252,14 @@ titanic_df |> mutate(price_today = fare * 78.17)
 #| exercise: ex_6
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "That's it - a new price_today column.")
-  fail("Not quite. Check the new column name and the calculation.")
+  pass_if_equal(explanation = "That's it - a new family_size column.")
+  fail("Not quite. Check the column name is exactly family_size, and that you've added 1 for the passenger.")
 })
 ```
 
 ## Exercise 7: `mutate()` with `if_else()`
 
-Create a new column called `status`, which is `'child'` if `age` is less than 18, and `'adult'` otherwise.
+Create a new column called `travelling`, which is `'alone'` if the passenger had no siblings, spouses, parents or children on board (`sibsp + parch` is 0), and `'with family'` otherwise.
 
 ```{webr}
 #| exercise: ex_7
@@ -275,7 +275,7 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_7" }
-`mutate(status = if_else(age < 18, 'child', 'adult'))`
+`if_else()` takes three things: a condition, the value if it's true, and the value if it's false. You can do a calculation inside the condition, for example `sibsp + parch == 0`.
 :::
 
 ::: { .solution exercise="ex_7" }
@@ -284,7 +284,7 @@ titanic_df |> ______
 ```{webr}
 #| exercise: ex_7
 #| solution: true
-titanic_df |> mutate(status = if_else(age < 18, 'child', 'adult'))
+titanic_df |> mutate(travelling = if_else(sibsp + parch == 0, 'alone', 'with family'))
 ```
 :::
 
@@ -292,14 +292,14 @@ titanic_df |> mutate(status = if_else(age < 18, 'child', 'adult'))
 #| exercise: ex_7
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "Correct - a status column of child/adult.")
-  fail("Not quite. Check the condition, and the two text values 'child' and 'adult'.")
+  pass_if_equal(explanation = "Correct - 790 passengers travelled alone and 519 with family.")
+  fail("Not quite. Check the condition, and the exact spelling of 'alone' and 'with family'.")
 })
 ```
 
 ## Exercise 8: `summarise()`
 
-In a single `summarise()`, calculate the average (mean) `age`, calling it `mean_age`, and the maximum `fare`, calling it `max_fare`.
+In a single `summarise()`, calculate the age of the **youngest** passenger, calling it `youngest`, and the **median** fare, calling it `median_fare`.
 
 ```{webr}
 #| exercise: ex_8
@@ -315,7 +315,7 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_8" }
-`summarise(mean_age = mean(age, na.rm = TRUE), max_fare = max(fare, na.rm = TRUE))`. The `na.rm = TRUE` matters here, since some ages are missing.
+Look at the list of summary functions in the `summarise()` chapter: `min()` and `median()` will help. Some ages and one fare are missing, so add `na.rm = TRUE` to each.
 :::
 
 ::: { .solution exercise="ex_8" }
@@ -324,7 +324,7 @@ titanic_df |> ______
 ```{webr}
 #| exercise: ex_8
 #| solution: true
-titanic_df |> summarise(mean_age = mean(age, na.rm = TRUE), max_fare = max(fare, na.rm = TRUE))
+titanic_df |> summarise(youngest = min(age, na.rm = TRUE), median_fare = median(fare, na.rm = TRUE))
 ```
 :::
 
@@ -332,14 +332,14 @@ titanic_df |> summarise(mean_age = mean(age, na.rm = TRUE), max_fare = max(fare,
 #| exercise: ex_8
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "That's it - both summary values, correctly named.")
-  fail("Not quite. Check your column names match exactly, and don't forget na.rm = TRUE.")
+  pass_if_equal(explanation = "That's it. The youngest passenger was about two months old (0.17 years), and the median fare was 14.45.")
+  fail("Not quite. Check your column names match exactly, and don't forget na.rm = TRUE in both functions.")
 })
 ```
 
 ## Stretch exercise 9: `group_by()` and `summarise()`
 
-For each passenger class (`pclass`), calculate the total number of passengers (call it `total`) and the average fare paid (call it `avg_fare`).
+For each port of embarkation (`embarked`), calculate the number of passengers (call it `passengers`) and the share who survived (call it `survival`). Did it matter where you got on?
 
 ```{webr}
 #| exercise: ex_9
@@ -357,7 +357,7 @@ titanic_df |>
 ```
 
 ::: { .hint exercise="ex_9" }
-`group_by(pclass)`, then `summarise(total = n(), avg_fare = mean(fare, na.rm = TRUE))`.
+Group by `embarked`. Because `survived` is 1 or 0, its mean is the share who survived (see "women and children first" in the grouping chapter). Use `n()` for the count and `mean(survived)` for the share.
 :::
 
 ::: { .solution exercise="ex_9" }
@@ -367,8 +367,8 @@ titanic_df |>
 #| exercise: ex_9
 #| solution: true
 titanic_df |>
-  group_by(pclass) |>
-  summarise(total = n(), avg_fare = mean(fare, na.rm = TRUE))
+  group_by(embarked) |>
+  summarise(passengers = n(), survival = mean(survived))
 ```
 :::
 
@@ -376,14 +376,14 @@ titanic_df |>
 #| exercise: ex_9
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "Great work - one row per class, with the right totals and averages.")
-  fail("Not quite. Check you're grouping by the right column, and that both summary columns are named and calculated correctly.")
+  pass_if_equal(explanation = "Great work. 56% of Cherbourg passengers survived, against 33% from Southampton. Why might that be? Try grouping by pclass as well.")
+  fail("Not quite. Check you're grouping by embarked, and that both summary columns are named and calculated correctly.")
 })
 ```
 
 ## Stretch exercise 10: `mutate()` with `case_when()`
 
-Create a new column called `status`, with **three** categories based on `age`: `'child'` for under 13, `'teenager'` for 13 up to (but not including) 20, and `'adult'` for 20 and over.
+Create a new column called `fare_band`, with **three** categories based on `fare`: `'low'` for under 10, `'medium'` for 10 up to (but not including) 50, and `'high'` for 50 and over.
 
 ```{webr}
 #| exercise: ex_10
@@ -399,17 +399,15 @@ titanic_df |> ______
 ```
 
 ::: { .hint exercise="ex_10" }
-`case_when()` takes a series of `condition ~ value` pairs, checked in order:
+`case_when()` takes a series of `condition ~ value` pairs, checked in order. It stops at the first match, so you don't need to repeat `fare >= 10` for the middle band:
 
 ```r
-mutate(status = case_when(
-  age < 13 ~ "child",
-  age < 20 ~ "teenager",
-  age >= 20 ~ "adult"
+mutate(fare_band = case_when(
+  fare < 10 ~ "low",
+  fare < 50 ~ "medium",
+  fare >= 50 ~ "high"
 ))
 ```
-
-Because `case_when()` checks each condition in order and stops at the first match, you don't need to repeat `age >= 13` for the teenager row.
 :::
 
 ::: { .solution exercise="ex_10" }
@@ -419,10 +417,10 @@ Because `case_when()` checks each condition in order and stops at the first matc
 #| exercise: ex_10
 #| solution: true
 titanic_df |>
-  mutate(status = case_when(
-    age < 13 ~ "child",
-    age < 20 ~ "teenager",
-    age >= 20 ~ "adult"
+  mutate(fare_band = case_when(
+    fare < 10 ~ "low",
+    fare < 50 ~ "medium",
+    fare >= 50 ~ "high"
   ))
 ```
 :::
@@ -431,7 +429,7 @@ titanic_df |>
 #| exercise: ex_10
 #| check: true
 gradethis::grade_this({
-  pass_if_equal(explanation = "Excellent - all three age categories, correctly assigned.")
-  fail("Not quite there yet. Check each of the three age boundaries carefully, and the exact spelling of each category.")
+  pass_if_equal(explanation = "Excellent - all three fare bands, correctly assigned. (One passenger has no fare recorded, so their band is NA.)")
+  fail("Not quite there yet. Check each of the three fare boundaries carefully, and the exact spelling of each category.")
 })
 ```
